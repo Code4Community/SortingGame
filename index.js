@@ -1,3 +1,5 @@
+const PORT = 80;
+
 var express = require('express');
 var app = express();
 // Statically serve src, allowing cors
@@ -7,6 +9,6 @@ app.use('/paper/dist', express.static('node_modules/paper/dist'));
 
 
 
-app.listen(80, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(PORT, function () {
+  console.log(`Example app listening on port ${PORT}!`);
 });
