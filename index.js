@@ -1,14 +1,15 @@
+const express = require('express');
+const path = require('path');
+const app = express();
 const PORT = 80;
 
-var express = require('express');
-var app = express();
-// Statically serve src, allowing cors
-app.use(express.static('src'));
-// Statically serve node_modules/paper/dist
-app.use('/paper/dist', express.static('node_modules/paper/dist'));
+// Serve static files from the 'src' directory
+app.use(express.static(path.join(__dirname, 'src')));
 
+// Serve static files from 'node_modules'
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
-
-app.listen(PORT, function () {
-  console.log(`Example app listening on port ${PORT}!`);
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

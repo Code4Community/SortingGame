@@ -2,12 +2,26 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Animated Star</title>
-    <script type="text/javascript" src="/paper/dist/paper-full.js"></script>
-    <script type="text/paperscript" src="js/canvas.js" canvas="canvas">
-    </script>
+    <title>Sorting Game</title>
+
+    <!-- Load Phaser from the local node_modules -->
+    <script src="../node_modules/phaser/dist/phaser.js"></script>
+
+    <!-- Load Paper.js from the local node_modules -->
+    <!-- <script type="text/javascript" src="../node_modules/paper/dist/paper-full.js"></script> -->
+    <!-- </script> -->
 </head>
 <body>
-    <canvas id="canvas" resize></canvas>
+        <!-- Phaser Game Container -->
+        <div id="game-container"></div>
+
+        <!-- Canvas for Paper.js. To remove later... -->
+        <!-- <canvas id="canvas" resize></canvas> -->
+    
+        <!-- Load Phaser game logic from game.js -->
+        <script src="js/game.js"></script>
+
+        <!-- Load Paper.js drawing logic from canvas.js. To remove later... -->
+        <!-- <script src="js/canvas.js"></script> -->
 </body>
 </html>
