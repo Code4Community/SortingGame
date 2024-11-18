@@ -1,3 +1,4 @@
+//  import C4C from "c4c-lib";
 class Example extends Phaser.Scene {
     graphics;
     path;
@@ -10,6 +11,19 @@ class Example extends Phaser.Scene {
     }
 
     create() {
+        console.log("Help me. Please");
+        console.log(document.getElementById("main_view"));
+        C4C.Editor.create(document.getElementById("editor-here"));
+
+        // C4C.Interpreter.define("alert", () => {
+        //     alert("hello");
+        //   });
+        
+        // C4C.Editor.Window.init(this);
+        // C4C.Editor.Window.open();
+        // C4C.Editor.setText(`moveRight(20));
+        //C4C.Editor.Window.toggle();
+
         // Add the background image
         this.add.image(400, 300, 'background'); // Center the background
 
@@ -61,4 +75,6 @@ const config = {
     scene: Example
 };
 
+//var createtext = C4C.Editor.create(document.getElementById("mytest"));
+C4C.Editor.create(document.body, null, true);
 const game = new Phaser.Game(config);
