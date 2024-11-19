@@ -11,13 +11,29 @@ class Example extends Phaser.Scene {
     }
 
     create() {
-        console.log("Help me. Please");
         console.log(document.getElementById("main_view"));
         C4C.Editor.create(document.getElementById("editor-here"));
 
-        // C4C.Interpreter.define("alert", () => {
-        //     alert("hello");
-        //   });
+        //Example definition, see google doc blah blah blah
+        C4C.Interpreter.define("moveleft", () => {
+            alert("hello");
+          });
+
+        //Example of how we'd define a boolean for whatever
+        //C4C.Interpreter.define("candy.color = blue", () => {return this.color});
+
+        document.getElementById("enableCommands").addEventListener("click", (event) => {
+                // document.getElementById("enableCommands").disabled = true;
+                //programText = C4C.Editor.getText();
+                // HERE'S THE IMPORTANT PART!!
+                // C4C.Interpreter.run(programText);
+                console.log("HELP");
+
+                let programText = C4C.Editor.getText();
+                console.log(typeof programText);
+                C4C.Interpreter.run(programText);
+                runner.setProgram(programText);
+        });
         
         // C4C.Editor.Window.init(this);
         // C4C.Editor.Window.open();
@@ -75,6 +91,26 @@ const config = {
     scene: Example
 };
 
-//var createtext = C4C.Editor.create(document.getElementById("mytest"));
-C4C.Editor.create(document.body, null, true);
+C4C.Editor.create(document.getElementById("editor-here"));
+// C4C.Editor.create(document.body, null, true);
 const game = new Phaser.Game(config);
+let runner = C4C.Runner.createRunner(); 
+
+// document.getElementsByClassName("btn btn-primary").addEventListener("click", (event) => { 
+//     console.log("HELP ME");
+// });
+
+// document.getElementById("enableCommands").addEventListener("click", (event) => {
+//     // document.getElementById("enableCommands").disabled = true;
+//     //programText = C4C.Editor.getText();
+//     // HERE'S THE IMPORTANT PART!!
+//     // C4C.Interpreter.run(programText);
+//     console.log("HELP");
+//     runner.setProgram(programText);
+    
+//     // if (!runner.check()) {
+//     //   runner.reset();
+//     //   return;
+//     // } 
+//     // runner.reset();
+//   }); 
