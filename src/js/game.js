@@ -1,5 +1,7 @@
 //  import C4C from "c4c-lib";
-class Example extends Phaser.Scene {
+
+//NOTE THE NAMING HERE: LEVEL1, used in config!
+class Level1 extends Phaser.Scene {
     graphics;
     path;
     follower;
@@ -11,8 +13,7 @@ class Example extends Phaser.Scene {
     }
 
     create() {
-        console.log(document.getElementById("main_view"));
-        C4C.Editor.create(document.getElementById("editor-here"));
+        console.log(document.getElementById("main_view")); //For debugging, delete later
 
         //Example definition, see google doc blah blah blah
         C4C.Interpreter.define("moveleft", () => {
@@ -82,23 +83,22 @@ class Example extends Phaser.Scene {
     }
 }
 
+const canvas = document.getElementById('my-custom-canvas');
+if (canvas) {console.log("Found?");} else { console.log("Not found?"); } 
+
 const config = {
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     width: 800,
     height: 600,
     backgroundColor: '#2d2d2d',
-    parent: 'phaser-example',
-    scene: Example
+    canvas: canvas,
+    scene: Level1
 };
 
-C4C.Editor.create(document.getElementById("editor-here"));
-// C4C.Editor.create(document.body, null, true);
+C4C.Editor.create(document.getElementById("editor-here")); //Maybe move this to "my-test" element
+console.log("Created!");
 const game = new Phaser.Game(config);
 let runner = C4C.Runner.createRunner(); 
-
-// document.getElementsByClassName("btn btn-primary").addEventListener("click", (event) => { 
-//     console.log("HELP ME");
-// });
 
 // document.getElementById("enableCommands").addEventListener("click", (event) => {
 //     // document.getElementById("enableCommands").disabled = true;
@@ -113,4 +113,4 @@ let runner = C4C.Runner.createRunner();
 //     //   return;
 //     // } 
 //     // runner.reset();
-//   }); 
+//   });
