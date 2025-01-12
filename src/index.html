@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <title>Sorting Game</title>
     <!-- Load Phaser from the local node_modules -->
-    <script src="../node_modules/phaser/dist/phaser.js"></script>
+    <script defer src="../node_modules/phaser/dist/phaser.js"></script>
+    <script defer src="https://github.com/Code4Community/c4c-lib/releases/download/0.2.51/bundle.js"></script>
 
     <!-- Load Phaser game logic from game.js -->
     <!-- Separate into several files! game.js, then level by level code!-->
-    <script src="js/game.js"></script>
-
+    <script defer src="js/game.js"></script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
@@ -20,6 +20,7 @@
 </head>
 <body>
         <!-- Phaser Game Container. Integrate with rest of the body later!-->
+        <!-- <div id="editor-here"></div> -->
         <div id="game-container"></div>
         <nav class="navbar navbar-dark bg-dark bg-scarlet">
             <a href="#" class="navbar-brand">Sorting Game C4C</a>
@@ -36,7 +37,7 @@
         </nav>
         <br>
     
-        <div id="Instructions">
+        <div id="NavBar">
           <div class="text-center">
             <button id="nextLevel" type="button" class="btn btn-success">Next Level</button>
             &nbsp;
@@ -46,7 +47,11 @@
         <br>
         <div id="main_view" class="d-flex">
           <div id="game" class="w-100"></div>
+          <div id="custom-container">
+            <canvas id="my-custom-canvas"></canvas>
+          </div>    
           <div id="mytest" class = "w-100"></div>
+          <div id="editor-here" class = 'w-100'></div>
         </div>
         <div id="Instructions">
           <div class="text-center">
@@ -58,7 +63,6 @@
                       <p style="padding-top: 0px;">Write out instructions here!</p>
                   </div>
               </div>
-          </div>  
-      </body>
+          </div>
 </body>
 </html>

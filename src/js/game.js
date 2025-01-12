@@ -1,4 +1,7 @@
-class Example extends Phaser.Scene {
+//  import C4C from "c4c-lib";
+
+//NOTE THE NAMING HERE: LEVEL1, used in config!
+class Level1 extends Phaser.Scene {
     graphics;
     path;
     follower;
@@ -10,6 +13,34 @@ class Example extends Phaser.Scene {
     }
 
     create() {
+        console.log(document.getElementById("main_view")); //For debugging, delete later
+
+        //Example definition, see google doc blah blah blah
+        C4C.Interpreter.define("moveleft", () => {
+            alert("hello");
+          });
+
+        //Example of how we'd define a boolean for whatever
+        //C4C.Interpreter.define("candy.color = blue", () => {return this.color});
+
+        document.getElementById("enableCommands").addEventListener("click", (event) => {
+                // document.getElementById("enableCommands").disabled = true;
+                //programText = C4C.Editor.getText();
+                // HERE'S THE IMPORTANT PART!!
+                // C4C.Interpreter.run(programText);
+                console.log("HELP");
+
+                let programText = C4C.Editor.getText();
+                console.log(typeof programText);
+                C4C.Interpreter.run(programText);
+                runner.setProgram(programText);
+        });
+        
+        // C4C.Editor.Window.init(this);
+        // C4C.Editor.Window.open();
+        // C4C.Editor.setText(`moveRight(20));
+        //C4C.Editor.Window.toggle();
+
         // Add the background image
         this.add.image(400, 300, 'background'); // Center the background
 
@@ -52,13 +83,34 @@ class Example extends Phaser.Scene {
     }
 }
 
+const canvas = document.getElementById('my-custom-canvas');
+if (canvas) {console.log("Found?");} else { console.log("Not found?"); } 
+
 const config = {
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     width: 800,
     height: 600,
     backgroundColor: '#2d2d2d',
-    parent: 'phaser-example',
-    scene: Example
+    canvas: canvas,
+    scene: Level1
 };
 
+C4C.Editor.create(document.getElementById("editor-here")); //Maybe move this to "my-test" element
+console.log("Created!");
 const game = new Phaser.Game(config);
+let runner = C4C.Runner.createRunner(); 
+
+// document.getElementById("enableCommands").addEventListener("click", (event) => {
+//     // document.getElementById("enableCommands").disabled = true;
+//     //programText = C4C.Editor.getText();
+//     // HERE'S THE IMPORTANT PART!!
+//     // C4C.Interpreter.run(programText);
+//     console.log("HELP");
+//     runner.setProgram(programText);
+    
+//     // if (!runner.check()) {
+//     //   runner.reset();
+//     //   return;
+//     // } 
+//     // runner.reset();
+//   });
