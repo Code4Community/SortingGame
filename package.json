@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "c4c-lib": "github:code4community/c4c-lib",
     "paper": "^0.12.17",
     "phaser": "^3.86.0"
   },
