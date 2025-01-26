@@ -1,7 +1,5 @@
-//  import C4C from "c4c-lib";
-
 //NOTE THE NAMING HERE: LEVEL1, used in config!
-class Level1 extends Phaser.Scene {
+export default class Level1 extends Phaser.Scene {
     graphics;
     path;
     follower;
@@ -13,34 +11,32 @@ class Level1 extends Phaser.Scene {
     }
 
     create() {
-        console.log(document.getElementById("main_view")); //For debugging, delete later
+        //First, we initialize the editor window
+        C4C.Editor.Window.init(this);   //Scene is passed in to this init function.
+        C4C.Editor.Window.open();
+        C4C.Editor.setText('moveleft'); //Example default text that will be in the editor window when it opens
+        console.log("Text editor initialized.");
 
-        //Example definition, see google doc blah blah blah
+
+        //Console log as you go and define things to make sure things work!
+        //Example definition of defining a function, see google doc blah blah blah
         C4C.Interpreter.define("moveleft", () => {
+            console.log("moveleft selected...");
             alert("hello");
           });
 
-        //Example of how we'd define a boolean for whatever
+        //Example of how we'd define a boolean for something.
         //C4C.Interpreter.define("candy.color = blue", () => {return this.color});
 
         document.getElementById("enableCommands").addEventListener("click", (event) => {
                 // document.getElementById("enableCommands").disabled = true;
-                //programText = C4C.Editor.getText();
-                // HERE'S THE IMPORTANT PART!!
-                // C4C.Interpreter.run(programText);
-                console.log("HELP");
-
+                //Grabbing text and then running it
                 let programText = C4C.Editor.getText();
-                console.log(typeof programText);
                 C4C.Interpreter.run(programText);
                 runner.setProgram(programText);
         });
-        
-        // C4C.Editor.Window.init(this);
-        // C4C.Editor.Window.open();
-        // C4C.Editor.setText(`moveRight(20));
-        //C4C.Editor.Window.toggle();
 
+        //We'll want to abstract this out into it's own function later... messy for now. 
         // Add the background image
         this.add.image(400, 300, 'background'); // Center the background
 
@@ -67,6 +63,7 @@ class Level1 extends Phaser.Scene {
     }
 
     update() {
+        //We'll want to abstract this out into it's own function later...
         // Clear the graphics object
         this.graphics.clear();
         this.graphics.lineStyle(2, 0xffffff, 1);
@@ -83,34 +80,7 @@ class Level1 extends Phaser.Scene {
     }
 }
 
-const canvas = document.getElementById('my-custom-canvas');
-if (canvas) {console.log("Found?");} else { console.log("Not found?"); } 
 
-const config = {
-    type: Phaser.CANVAS,
-    width: 800,
-    height: 600,
-    backgroundColor: '#2d2d2d',
-    canvas: canvas,
-    scene: Level1
-};
-
-C4C.Editor.create(document.getElementById("editor-here")); //Maybe move this to "my-test" element
-console.log("Created!");
-const game = new Phaser.Game(config);
-let runner = C4C.Runner.createRunner(); 
-
-// document.getElementById("enableCommands").addEventListener("click", (event) => {
-//     // document.getElementById("enableCommands").disabled = true;
-//     //programText = C4C.Editor.getText();
-//     // HERE'S THE IMPORTANT PART!!
-//     // C4C.Interpreter.run(programText);
-//     console.log("HELP");
-//     runner.setProgram(programText);
-    
-//     // if (!runner.check()) {
-//     //   runner.reset();
-//     //   return;
-//     // } 
-//     // runner.reset();
-//   });
+//For debugging for casey later...
+// const canvas = document.getElementById('my-custom-canvas');
+// if (canvas) {console.log("Found?");} else { console.log("Not found?"); } 
