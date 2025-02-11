@@ -1,13 +1,20 @@
 //NOTE THE NAMING HERE: LEVEL1, used in config!
+import Candy, {Colors, Shapes, Patterns } from './candy.js';
 export default class Level1 extends Phaser.Scene {
+
     graphics;
     path;
     follower;
 
     preload() {
         // Load the background image
-        this.load.image('background', 'assets/background.png'); // Change the path as needed
-        this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
+        //TO-DO: Add Texture manager: https://docs.phaser.io/phaser/concepts/textures
+        //Example candy implementation 
+        const blueStripedCircle = new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/blue_circle_striped.png');
+        //console.log(blueStripedCircle.imagePath === '../assets/blue_circle_striped.png');
+        this.load.image('background', 'assets/background.png');
+        this.load.image('follower', blueStripedCircle.imagePath); // Load the candy image
+        //this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
     }
 
     create() {
@@ -42,6 +49,7 @@ export default class Level1 extends Phaser.Scene {
 
         this.graphics = this.add.graphics();
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
+        //Add follower sprite here...
 
         // Create the path using two separate lines
         const line1 = new Phaser.Curves.Line([100, 100, 500, 200]);
@@ -67,6 +75,7 @@ export default class Level1 extends Phaser.Scene {
         // Clear the graphics object
         this.graphics.clear();
         this.graphics.lineStyle(2, 0xffffff, 1);
+        
 
         // Draw the path
         this.path.draw(this.graphics);
@@ -79,7 +88,6 @@ export default class Level1 extends Phaser.Scene {
         this.graphics.fillRect(this.follower.vec.x - 8, this.follower.vec.y - 8, 16, 16);
     }
 }
-
 
 //For debugging for casey later...
 // const canvas = document.getElementById('my-custom-canvas');
