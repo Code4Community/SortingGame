@@ -3,8 +3,15 @@ import Candy, {Colors, Shapes, Patterns } from './candy.js';
 export default class Level1 extends Phaser.Scene {
 
     graphics;
-    path;
+    
+    path1;
+    path2;
+    path3;
     follower;
+    isMoving = false;
+
+    canMoveLeft = false;
+    canMoveRight = false;
 
     preload() {
         // Load the background image
@@ -21,16 +28,23 @@ export default class Level1 extends Phaser.Scene {
         //First, we initialize the editor window
         C4C.Editor.Window.init(this);   //Scene is passed in to this init function.
         C4C.Editor.Window.open();
-        C4C.Editor.setText('moveleft'); //Example default text that will be in the editor window when it opens
+        //C4C.Editor.setText('moveleft'); //Example default text that will be in the editor window when it opens
         console.log("Text editor initialized.");
 
 
         //Console log as you go and define things to make sure things work!
         //Example definition of defining a function, see google doc blah blah blah
         C4C.Interpreter.define("moveleft", () => {
-            console.log("moveleft selected...");
-            alert("hello");
-          });
+            console.log("moveleft in text editor");
+            
+            this.canMoveLeft = true;
+        });
+
+        C4C.Interpreter.define("moveright", () => {
+            console.log("moveright in text editor");
+            
+            this.canMoveRight = true;
+        });
 
         //Example of how we'd define a boolean for something.
         //C4C.Interpreter.define("candy.color = blue", () => {return this.color});
@@ -51,24 +65,102 @@ export default class Level1 extends Phaser.Scene {
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
         //Add follower sprite here...
 
-        // Create the path using two separate lines
-        const line1 = new Phaser.Curves.Line([100, 100, 500, 200]);
-        const line2 = new Phaser.Curves.Line([200, 300, 600, 500]);
+        // Create the path using 3 separate lines
+        const startline = new Phaser.Curves.Line([400, 0, 400, 300]);
+        const leftline = new Phaser.Curves.Line([400, 300, 300, 500]);
+        const rightline = new Phaser.Curves.Line([400, 300, 500, 500]);
+        
 
-        this.path = this.add.path();
-        this.path.add(line1);
-        this.path.add(line2);
+        this.path1 = this.add.path();
+        this.path1.add(startline);
+
+        this.path2 = this.add.path();
+        this.path2.add(leftline);
+
+        this.path3 = this.add.path();
+        this.path3.add(rightline);
+
+        
+        
 
         // Tween the follower along the path
-        this.tweens.add({
-            targets: this.follower,
-            t: 1,
-            ease: 'Linear',
-            duration: 4000,
-            yoyo: true,
-            repeat: -1
-        });
+        const startTween = ()=> {
+            this.follower.t = 0;
+            this.isMoving = true;
+            console.log("isMoving: ",this.isMoving);
+            this.tweens.add({
+                targets: this.follower,
+                t: 1,
+                ease: 'Linear',
+                duration: 1000,
+                onUpdate: () => {
+                    this.path1.getPoint(this.follower.t, this.follower.vec);
+                },
+                onComplete: () => {
+                    console.log("Start Path complete!");
+               
+
+                    if (this.canMoveLeft) {
+                        this.moveLeft();
+                        this.canMoveLeft = false;
+                    } else if(this.canMoveRight) {
+                        this.moveRight();
+                        this.canMoveRight = false;
+                    } else {
+                        this.isMoving = false;
+                    } 
+                }
+            });
+        };
+
+        // Function to move the follower to the left path
+        this.moveLeft = () => {
+            //this.isMoving = true;
+            console.log("move left function called");
+            this.follower.t = 1;
+            this.tweens.add({
+                targets: this.follower,
+                t: 2,
+                ease: 'Linear',
+                duration: 1000,
+                onUpdate: () => {
+                    this.path2.getPoint(this.follower.t, this.follower.vec);
+                },
+                onComplete: () => {
+                    console.log("Left Path complete!");
+                    this.isMoving = false;
+                }
+            });   
+        };
+
+        // Function to move the follower to the downward path
+        this.moveRight = () => {
+            //this.isMoving = true;
+            console.log("move right function called");
+            this.follower.t = 2.001;
+            this.tweens.add({
+                targets: this.follower,
+                t: 3,
+                ease: 'Linear',
+                duration: 1000,
+                onUpdate: () => {
+                    this.path3.getPoint(this.follower.t, this.follower.vec);
+                },
+                onComplete: () => {
+                    console.log("Right Path complete!");
+                    this.isMoving = false;
+                    
+            
+                }
+            });
+            
+        };
+
+        // Add event listener to the button
+        document.getElementById("enableCommands").addEventListener("click", startTween);
     }
+
+    
 
     update() {
         //We'll want to abstract this out into it's own function later...
@@ -77,11 +169,25 @@ export default class Level1 extends Phaser.Scene {
         this.graphics.lineStyle(2, 0xffffff, 1);
         
 
-        // Draw the path
-        this.path.draw(this.graphics);
+        // Draw the paths
+        this.path1.draw(this.graphics);
+        this.path2.draw(this.graphics);
+        this.path3.draw(this.graphics);
 
         // Get the position of the follower on the path
-        this.path.getPoint(this.follower.t, this.follower.vec);
+        if (this.isMoving) {
+            if (this.follower.t <= 1) {
+                this.path1.getPoint(this.follower.t, this.follower.vec);
+            } else if (this.follower.t > 1 && this.follower.t <= 2) {
+                this.path2.getPoint(this.follower.t - 1, this.follower.vec);
+            } else if (this.follower.t > 2 && this.follower.t <= 3) {
+                this.path3.getPoint(this.follower.t - 2, this.follower.vec);
+            }
+        }
+        
+            
+        
+        
 
         // Draw the follower as a red square
         this.graphics.fillStyle(0xff0000, 1);
