@@ -11,9 +11,13 @@ export default class Level1 extends Phaser.Scene {
         //TO-DO: Add Texture manager: https://docs.phaser.io/phaser/concepts/textures
         //Example candy implementation 
         const blueStripedCircle = new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/blue_circle_striped.png');
+        const redStripedCircle = new Candy(Colors.RED, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/red_circle_striped.png');
+        const greenStripedCircle = new Candy(Colors.GREEN, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/green_circle_striped.png');
         //console.log(blueStripedCircle.imagePath === '../assets/blue_circle_striped.png');
         this.load.image('background', 'assets/background.png');
-        this.load.image('follower', blueStripedCircle.imagePath); // Load the candy image
+        this.load.image('follower1', blueStripedCircle.imagePath); // Load the candy image
+        this.load.image('follower2', redStripedCircleStripedCircle.imagePath);
+        this.load.image('follower3', greenStripedCircleStripedCircle.imagePath);
         //this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
     }
 
@@ -47,6 +51,26 @@ export default class Level1 extends Phaser.Scene {
         // Add the background image
         this.add.image(400, 300, 'background'); // Center the background
 
+        // add sprites to screen using defined array
+        // 1 = blue circle striped
+        // 2 = red circle striped
+        // 3 = green circle striped
+        let arr1 =[
+            [1,2,3],
+            [3,3,3],
+            [3,2,1]];
+        for(i = 0; i < arr1.length; i++){
+            for(j = 0; j < arr1[i].length; j++){
+                if (arr[i][j] == 1){
+                    this.add.image(i*10 + 400, j*10 + 300, 'follower1');
+                } else if (arr[i][j] == 2){
+                    this.add.image(i*10, j*10, 'follower2');
+                } else if (arr[i][j] == 3){
+                    this.add.image(i*10, j*10, 'follower3');
+                }
+            }
+        }
+            
         this.graphics = this.add.graphics();
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
         //Add follower sprite here...
