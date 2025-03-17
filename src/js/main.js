@@ -28,6 +28,34 @@ const theme = {
     }
   }
 
+//Event listener for level select
+document.getElementById('level-select').addEventListener('change', (event) => {
+  const selectedLevel = event.target.value;
+  var scene;
+
+  switch (selectedLevel) {
+      case '1':
+          scene = 'DemoLevel';
+          console.log('DemoLevel');
+          game.scene.start(scene, Level1);
+          break;
+      case '2':
+          scene = 'Level1';
+          console.log('Level1');
+          game.scene.start(scene, Level1);
+          break;
+      case '3':
+          scene = 'Level2';
+          game.scene.start(scene, Level2);
+          break;
+      // Add more cases for additional levels later when added
+      default:
+          scene = 'DemoLevel';
+          game.scene.start(scene, Level1);
+          break;
+  }
+});
+
 //Setting up text editor
 C4C.Editor.create(document.getElementById("editor-here"), theme, true); //the element id doesn't actually make a difference. Idk why.
 console.log("Created text editor! Yet to be initialized.");
