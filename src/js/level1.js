@@ -60,34 +60,40 @@ export default class Level1 extends Phaser.Scene {
         // 1 = blue circle striped
         // 2 = red circle striped
         // 3 = green circle striped
+        // 4 = conveyor down
+        // 5 = conveyor left
+        // 6 = conveyor right
+        // 7 = conveyor connector
         let arr1 =[
-            [1,4,2,5,2],
-            [3,3,3,1,7],
-            [3,2,1,2,4],
-            [5,7,6,3,2],
-            [1,5,2,6,3]];
+            [1,1,4,1,1],
+            [1,5,7,6,1],
+            [1,4,1,4,1],
+            [5,7,1,7,6],
+            [4,1,1,1,4]];
+
+        //2-d array representation of the game grid, number determines tile type
         for(let i = 0; i < arr1.length; i++){
             for(let j = 0; j < arr1[i].length; j++){
                 if (arr1[i][j] == 1){
-                    this.add.image(i*124 + 100, j*124 + 100, 'follower1');
+                    this.add.image(j*32 + 320, i*32 + 100, 'follower1');
                 } else if (arr1[i][j] == 2){
-                    this.add.image(i*124 + 100, j*124 + 100, 'follower2');
+                    this.add.image(j*32 + 320, i*32 + 100, 'follower2');
                 } else if (arr1[i][j] == 3){
-                    this.add.image(i*124 + 100, j*124 + 100, 'follower3');
+                    this.add.image(j*32 + 320, i*32 + 100, 'follower3');
                 } else if (arr1[i][j] == 4){
-                    this.add.image(i*124 + 100, j*124 + 100, 'conveyorDown');
+                    this.add.image(j*32 + 320, i*32 + 100, 'conveyorDown');
                 } else if (arr1[i][j] == 5){
-                    this.add.image(i*124 + 100, j*124 + 100, 'conveyorLeft');
+                    this.add.image(j*32 + 320, i*32 + 100, 'conveyorLeft');
                 } else if (arr1[i][j] == 6){
-                    this.add.image(i*124 + 100, j*124 + 100, 'conveyorRight');
+                    this.add.image(j*32 + 320, i*32 + 100, 'conveyorRight');
                 } else if (arr1[i][j] == 7){
-                    this.add.image(i*124 + 100, j*124 + 100, 'conveyorConnector');
+                    this.add.image(j*32 + 320, i*32 + 100, 'conveyorConnector');
                 }
             }
         }
             
         this.graphics = this.add.graphics();
-        this.follower = this.add.sprite(100, 100, 'follower'); // Create the follower sprite
+        this.follower = this.add.sprite(100, 100, 'follower1'); // Create the follower sprite
         this.followerPath = { t: 0, vec: new Phaser.Math.Vector2() };
 
         // Create the path using two separate lines
