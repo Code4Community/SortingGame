@@ -1,11 +1,6 @@
 // FIX: the leftCount/rightCount:
 //        the issue is that there arent being reset after the first run.
-
-
-
-
 //NOTE THE NAMING HERE: LEVEL1, used in config!
-import Candy, {Colors, Shapes, Patterns } from './candy.js';
 export default class Level2 extends Phaser.Scene {
 
     graphics;
@@ -32,10 +27,10 @@ export default class Level2 extends Phaser.Scene {
         // Load the background image
         //TO-DO: Add Texture manager: https://docs.phaser.io/phaser/concepts/textures
         //Example candy implementation 
-        const blueStripedCircle = new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/blue_circle_striped.png');
+        //const blueStripedCircle = new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/blue_circle_striped.png');
         //console.log(blueStripedCircle.imagePath === '../assets/blue_circle_striped.png');
         this.load.image('background', 'assets/background.png');
-        this.load.image('follower', blueStripedCircle.imagePath); // Load the candy image
+       // this.load.image('follower', blueStripedCircle.imagePath); // Load the candy image
         //this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
         this.leftCount = 0;
     }
@@ -44,9 +39,8 @@ export default class Level2 extends Phaser.Scene {
         //First, we initialize the editor window
         C4C.Editor.Window.init(this);   //Scene is passed in to this init function.
         C4C.Editor.Window.open();
-        //C4C.Editor.setText('moveleft'); //Example default text that will be in the editor window when it opens
+        C4C.Editor.setText('moveleft'); //Example default text that will be in the editor window when it opens
         console.log("Text editor initialized.");
-        
 
         //Console log as you go and define things to make sure things work!
         //Example definition of defining a function, see google doc blah blah blah
@@ -66,8 +60,6 @@ export default class Level2 extends Phaser.Scene {
         //C4C.Interpreter.define("candy.color = blue", () => {return this.color});
 
         document.getElementById("enableCommands").addEventListener("click", (event) => {
-                // document.getElementById("enableCommands").disabled = true;
-                //Grabbing text and then running it
                 let programText = C4C.Editor.getText();
                 C4C.Interpreter.run(programText);
                 runner.setProgram(programText);
@@ -75,11 +67,11 @@ export default class Level2 extends Phaser.Scene {
 
         //We'll want to abstract this out into it's own function later... messy for now. 
         // Add the background image
-        this.add.image(400, 300, 'background'); // Center the background
+        this.add.image(400, 300, 'background'); //Centers the background
 
         this.graphics = this.add.graphics();
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
-        //Add follower sprite here...
+        //To-DO: Add follower sprite here...
 
         // Create the path using 3 separate lines
         const startline = new Phaser.Curves.Line([400, 0, 400, 100]);
@@ -105,9 +97,6 @@ export default class Level2 extends Phaser.Scene {
         this.path5 = this.add.path();
         this.path5.add(rightline2);
 
-        
-        
-
         // Tween the follower along the path
         const startTween = ()=> {
             this.follower.t = 0;
@@ -127,14 +116,19 @@ export default class Level2 extends Phaser.Scene {
 
                     if (this.canMoveLeft) {
                         var i = 0;
-                        while (2 > i) {
+
+                        //Uncomment for debugging:
+                        // while (2 > i) {
                             
-                            const pathNum = this.leftChildren[i];
-                            console.log("Path number: " ,pathNum);
-                            this.moveLeftPath(pathNum);
+                        //     const pathNum = this.leftChildren[i];
+                        //     console.log("Path number: " ,pathNum);
+                        //     this.moveLeftPath(pathNum);
                             
-                            i++;
-                        }
+                        //     i++;
+                        // }
+
+                        this.moveLeftPath(2);
+                        this.moveLeftPath(4);
                         this.canMoveLeft = false;
                     } else if(this.canMoveRight) {
                         this.moveRight();
@@ -223,9 +217,9 @@ export default class Level2 extends Phaser.Scene {
 
         // Function to move the follower to the left path
         this.moveLeft = () => {
-         
             console.log("move left function called");
 
+            //Uncomment to debug:
             // var i = 0;
             // while (i < this.leftChildren.length) {
             //     const pathNum = this.leftChildren[i];
@@ -233,9 +227,8 @@ export default class Level2 extends Phaser.Scene {
             //     this.moveLeftPath(pathNum);
             //     i++;
             // }
-            // The code above does the same thing as the code below, but in a more abstract way.
+            // The code above (commented) does the same thing as the code below, but in a more abstract way.
             this.movePath2();
-            // this.movePath4();
         };
 
         // Function to move the follower to the right path
@@ -252,7 +245,6 @@ export default class Level2 extends Phaser.Scene {
     
 
     update() {
-        //We'll want to abstract this out into it's own function later...
         // Clear the graphics object
         this.graphics.clear();
         this.graphics.lineStyle(2, 0xffffff, 1);
@@ -282,10 +274,6 @@ export default class Level2 extends Phaser.Scene {
             }
         }
         
-            
-        
-        
-
         // Draw the follower as a red square
         this.graphics.fillStyle(0xff0000, 1);
         this.graphics.fillRect(this.follower.vec.x - 8, this.follower.vec.y - 8, 16, 16);

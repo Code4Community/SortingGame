@@ -1,15 +1,10 @@
-//NOTE THE NAMING HERE: LEVEL1, used in config!
 export default class Level1 extends Phaser.Scene {
     graphics;
-    
     path1;
     path2;
     path3;
     follower;
     isMoving = false;
-
-    canMoveLeft = false;
-    canMoveRight = false;
 
     preload() {
         // Load the background image
@@ -18,50 +13,44 @@ export default class Level1 extends Phaser.Scene {
     }
 
     create() {
-        //First, we initialize the editor window
-        C4C.Editor.Window.init(this);   //Scene is passed in to this init function.
+        // Initialize the editor window
+        C4C.Editor.Window.init(this);   // Scene is passed in to this init function!
         C4C.Editor.Window.open();
-        //C4C.Editor.setText('moveleft'); //Example default text that will be in the editor window when it opens
         console.log("Text editor initialized.");
 
-
-        //Console log as you go and define things to make sure things work!
-        //Example definition of defining a function, see google doc blah blah blah
+        // Define interpreter commands
         C4C.Interpreter.define("moveleft", () => {
-            console.log("moveleft in text editor");
-            
-            this.canMoveLeft = true;
+            //console.log("moveleft in text editor");
+            this.moveLeft();
         });
 
         C4C.Interpreter.define("moveright", () => {
-            console.log("moveright in text editor");
-            
-            this.canMoveRight = true;
+            this.moveRight();
         });
-
-        //Example of how we'd define a boolean for something.
-        //C4C.Interpreter.define("candy.color = blue", () => {return this.color});
 
         document.getElementById("enableCommands").addEventListener("click", (event) => {
-                // document.getElementById("enableCommands").disabled = true;
-                //Grabbing text and then running it
-                let programText = C4C.Editor.getText();
-                C4C.Interpreter.run(programText);
-                runner.setProgram(programText);
+            let programText = C4C.Editor.getText();
+            console.log("Program text: ", programText);
+            C4C.Interpreter.run(programText);
+            runner.setProgram(programText);
         });
 
-        //We'll want to abstract this out into it's own function later... messy for now. 
         // Add the background image
         this.add.image(400, 300, 'background'); // Center the background
 
         this.graphics = this.add.graphics();
-        this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
+        this.initializePaths();
+        this.initializeFollower();
 
+        // Add event listener to the button
+        document.getElementById("enableCommands").addEventListener("click", this.startTween);
+    }
+
+    initializePaths() {
         // Create the path using 3 separate lines
         const startline = new Phaser.Curves.Line([400, 0, 400, 300]);
         const leftline = new Phaser.Curves.Line([400, 300, 300, 500]);
         const rightline = new Phaser.Curves.Line([400, 300, 500, 500]);
-        
 
         this.path1 = this.add.path();
         this.path1.add(startline);
@@ -71,101 +60,93 @@ export default class Level1 extends Phaser.Scene {
 
         this.path3 = this.add.path();
         this.path3.add(rightline);
-
-        
-        
-
-        // Tween the follower along the path
-        const startTween = ()=> {
-            this.follower.t = 0;
-            this.isMoving = true;
-            console.log("isMoving: ",this.isMoving);
-            this.tweens.add({
-                targets: this.follower,
-                t: 1,
-                ease: 'Linear',
-                duration: 1000,
-                onUpdate: () => {
-                    this.path1.getPoint(this.follower.t, this.follower.vec);
-                },
-                onComplete: () => {
-                    console.log("Start Path complete!");
-               
-
-                    if (this.canMoveLeft) {
-                        this.moveLeft();
-                        this.canMoveLeft = false;
-                    } else if(this.canMoveRight) {
-                        this.moveRight();
-                        this.canMoveRight = false;
-                    } else {
-                        this.isMoving = false;
-                    } 
-                }
-            });
-        };
-
-        // Function to move the follower to the left path
-        this.moveLeft = () => {
-            //this.isMoving = true;
-            console.log("move left function called");
-            this.follower.t = 1;
-            this.tweens.add({
-                targets: this.follower,
-                t: 2,
-                ease: 'Linear',
-                duration: 1000,
-                onUpdate: () => {
-                    this.path2.getPoint(this.follower.t, this.follower.vec);
-                },
-                onComplete: () => {
-                    console.log("Left Path complete!");
-                    this.isMoving = false;
-                }
-            });   
-        };
-
-        // Function to move the follower to the downward path
-        this.moveRight = () => {
-            //this.isMoving = true;
-            console.log("move right function called");
-            this.follower.t = 2.001;
-            this.tweens.add({
-                targets: this.follower,
-                t: 3,
-                ease: 'Linear',
-                duration: 1000,
-                onUpdate: () => {
-                    this.path3.getPoint(this.follower.t, this.follower.vec);
-                },
-                onComplete: () => {
-                    console.log("Right Path complete!");
-                    this.isMoving = false;
-                    
-            
-                }
-            });
-            
-        };
-
-        // Add event listener to the button
-        document.getElementById("enableCommands").addEventListener("click", startTween);
     }
 
-    
+    initializeFollower() {
+        this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
+    }
+
+    startTween = () => {
+        this.follower.t = 0;
+        this.isMoving = true;
+        console.log("isMoving: ", this.isMoving);
+        this.tweens.add({
+            targets: this.follower,
+            t: 1,
+            ease: 'Linear',
+            duration: 1000,
+            onUpdate: () => {
+                this.path1.getPoint(this.follower.t, this.follower.vec);
+            },
+            onComplete: () => {
+                console.log("Start Path complete!");
+                this.handlePathCompletion();
+            }
+        });
+    };
+
+    handlePathCompletion() {
+        // //Logic to determine the next move based on user input or pseudo code
+        // const nextMove = this.getNextMove(); // Implement this function to determine the next move
+        // if (nextMove === "left") {
+        //     this.moveLeft();
+        // } else if (nextMove === "right") {
+        //     this.moveRight();
+        // } else {
+        //     this.isMoving = false;
+        // }
+    }
+
+    // getNextMove() {
+    // }
+
+    moveLeft = () => {
+        console.log("Move left function called");
+        this.follower.t = 1;
+        this.tweens.add({
+            targets: this.follower,
+            t: 2,
+            ease: 'Linear',
+            duration: 1000,
+            onUpdate: () => {
+                this.path2.getPoint(this.follower.t - 1, this.follower.vec);
+            },
+            onComplete: () => {
+                console.log("Left Path complete!");
+                this.handlePathCompletion();
+            }
+        });
+    };
+
+    moveRight = () => {
+        console.log("Move right function called");
+        this.follower.t = 2.001;
+        this.tweens.add({
+            targets: this.follower,
+            t: 3,
+            ease: 'Linear',
+            duration: 1000,
+            onUpdate: () => {
+                this.path3.getPoint(this.follower.t - 2, this.follower.vec);
+            },
+            onComplete: () => {
+                console.log("Right Path complete!");
+                this.handlePathCompletion();
+            }
+        });
+    };
 
     update() {
-        //We'll want to abstract this out into it's own function later...
-        // Clear the graphics object
+        //Clear the graphics object
         this.graphics.clear();
         this.graphics.lineStyle(2, 0xffffff, 1);
 
-        // Draw the paths
+        //Draw the paths
         this.path1.draw(this.graphics);
         this.path2.draw(this.graphics);
         this.path3.draw(this.graphics);
 
-        // Get the position of the follower on the path
+        //Get the position of the follower on the path
         if (this.isMoving) {
             if (this.follower.t <= 1) {
                 this.path1.getPoint(this.follower.t, this.follower.vec);
@@ -175,18 +156,9 @@ export default class Level1 extends Phaser.Scene {
                 this.path3.getPoint(this.follower.t - 2, this.follower.vec);
             }
         }
-        
-            
-        
-        
 
-        // Draw the follower as a red square
+        //Draw the follower as a red square
         this.graphics.fillStyle(0xff0000, 1);
         this.graphics.fillRect(this.follower.vec.x - 8, this.follower.vec.y - 8, 16, 16);
     }
 }
-
-
-//For debugging for casey later...
-// const canvas = document.getElementById('my-custom-canvas');
-// if (canvas) {console.log("Found?");} else { console.log("Not found?"); } 
