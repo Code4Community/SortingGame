@@ -1,5 +1,6 @@
 //import Level1 from './scenes/Level1.js';
 import Level1 from './level1.js';
+import Level2 from './level2.js';
 
 //Here, we import the level files. 
 //Later, we'll want to abstract this process into a function or switch case to call specific levels.
