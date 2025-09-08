@@ -1,4 +1,6 @@
+import Candy, {Colors, Shapes, Patterns } from './candy.js';
 export default class Level1 extends Phaser.Scene {
+
     graphics;
     path1;
     path2;
@@ -8,8 +10,13 @@ export default class Level1 extends Phaser.Scene {
 
     preload() {
         // Load the background image
-        this.load.image('background', 'assets/background.png'); // Change the path as needed
-        this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
+        //TO-DO: Add Texture manager: https://docs.phaser.io/phaser/concepts/textures
+        //Example candy implementation 
+        const blueStripedCircle = new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/blue_circle_striped.png');
+        //console.log(blueStripedCircle.imagePath === '../assets/blue_circle_striped.png');
+        this.load.image('background', 'assets/background.png');
+        this.load.image('follower', blueStripedCircle.imagePath); // Load the candy image
+        //this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
     }
 
     create() {
@@ -162,3 +169,7 @@ export default class Level1 extends Phaser.Scene {
         this.graphics.fillRect(this.follower.vec.x - 8, this.follower.vec.y - 8, 16, 16);
     }
 }
+
+//For debugging for casey later...
+// const canvas = document.getElementById('my-custom-canvas');
+// if (canvas) {console.log("Found?");} else { console.log("Not found?"); } 
