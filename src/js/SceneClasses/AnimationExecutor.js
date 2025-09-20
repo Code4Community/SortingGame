@@ -2,15 +2,23 @@ export default class AnimationExecutor {
     constructor(scene, pathManager) {
         this.scene = scene;
         this.pathManager = pathManager;
+        //Two types of commands in the queue: custom and path
         this.commandQueue = [];
+        //Ex: {type: 'path', command: 'moveleft'} 
+        //Ex: {type: 'custom', command: 'sampleCustomCommand', callback: function() { console.log("blah")}}
         this.animationQueue = [];
         this.isExecutingCommand = false;
-        this.follower = { t: 0, vec: new window.Phaser.Math.Vector2() };
+        this.follower = { t: 0, vec: new window.Phaser.Math.Vector2() }; //I think this is why the follower is appearing where it is right now...
     }
 
     queueCommand(commandType) {
-        this.commandQueue.push(commandType);
-        console.log(`[${this.scene.currentLevel}] Command ${commandType} queued. Total queued: ${this.commandQueue.length}`);
+        this.commandQueue.push({ type: 'path', command: commandType });
+        console.log(`[${this.scene.currentLevel}] Path command ${commandType} queued. Total queued: ${this.commandQueue.length}`);
+    }
+
+    queueCustomCommand(commandName, callback) {
+        this.commandQueue.push({ type: 'custom', command: commandName, callback: callback });
+        console.log(`[${this.scene.currentLevel}] Custom command ${commandName} queued. Total queued: ${this.commandQueue.length}`);
     }
 
     executeNextCommand() {
@@ -20,19 +28,39 @@ export default class AnimationExecutor {
             return;
         }
 
-        const nextCommand = this.commandQueue.shift();
+        const nextCommandObj = this.commandQueue.shift();
         this.isExecutingCommand = true;
-        console.log(`[${this.scene.currentLevel}] Executing command: ${nextCommand}. Remaining: ${this.commandQueue.length}`);
+        console.log(`[${this.scene.currentLevel}] Executing command: ${nextCommandObj.command}. Remaining: ${this.commandQueue.length}`);
 
-        // Use pathManager to get the path for the command
-        const pathLines = this.pathManager.getPath(nextCommand);
+        if (nextCommandObj.type === 'path') {
+            console.log("Executing path command");
+            this._executePathCommand(nextCommandObj);
+        } else if (nextCommandObj.type === 'custom') {
+            console.log("Executing custom command");
+            this._executeCustomCommand(nextCommandObj);
+        }
+    }
+
+    _executePathCommand(nextCommandObj) {
+        const pathLines = this.pathManager.getPath(nextCommandObj.command);
         if (pathLines.length > 0) {
             this.queueAnimation(pathLines);
         } else {
-            console.warn(`[${this.scene.currentLevel}] No path found for command: ${nextCommand}`);
+            console.warn(`[${this.scene.currentLevel}] No path found for command: ${nextCommandObj.command}`);
             this.isExecutingCommand = false;
             this.executeNextCommand();
         }
+    }
+
+    _executeCustomCommand(nextCommandObj) {
+        try {
+            nextCommandObj.callback.call(this.scene);
+            console.log(`[${this.scene.currentLevel}] Custom command ${nextCommandObj.command} executed.`);
+        } catch (error) {
+            console.error(`[${this.scene.currentLevel}] Error executing custom command:`, error);
+        }
+        this.isExecutingCommand = false;
+        this.executeNextCommand();
     }
 
     queueAnimation(lines) {
@@ -70,7 +98,7 @@ export default class AnimationExecutor {
         });
     }
 
-    reset() {
+    reset() { //Could be useful, Idk.
         this.commandQueue = [];
         this.animationQueue = [];
         this.isExecutingCommand = false;
