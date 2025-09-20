@@ -6,8 +6,6 @@ export default class PathManager {
     }
 
     addLine(name, start, end) {
-        // Debug: Check if Phaser is available
-        console.log('Phaser available:', typeof window.Phaser);
         console.log('Start object:', start);
         console.log('Start.x:', start.x);
 
@@ -25,12 +23,10 @@ export default class PathManager {
         if (!fromLine) throw new Error(`Line ${fromLineName} not found`);
 
         console.log('fromLine:', fromLine);
-        console.log('fromLine properties:', Object.keys(fromLine));
-        console.log('fromLine.p2:', fromLine.p2);
 
-        let endPoint;
+        var endPoint;
         if (fromLine.getPoint) {
-            endPoint = this._getEndpointOfFromLine();
+            endPoint = this._getEndpointOfFromLine(fromLine);
         } else {
             throw new Error(`Cannot determine end point of line ${fromLineName}`);
         }
@@ -38,12 +34,11 @@ export default class PathManager {
         return this.addLine(newLineName, endPoint, end);
     }
 
-    _getEndpointOfFromLine() {
+    _getEndpointOfFromLine(fromLine) {
         const endPointIndex = 1;
         const tempVec = new window.Phaser.Math.Vector2();
         fromLine.getPoint(endPointIndex, tempVec);
-        endPoint = { x: tempVec.x, y: tempVec.y };
-        return endPoint;
+        return { x: tempVec.x, y: tempVec.y };
     }
 
     //Used to create paths from the different lines.
