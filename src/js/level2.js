@@ -1,20 +1,12 @@
+import PathManager from "./SceneClasses/PathManager.js";
 export default class Level2 extends Phaser.Scene {
     graphics;
-    centerLine;
-    leftLine;
-    rightLine;
+    pathManager;
     follower = { t: 0, vec: new Phaser.Math.Vector2() };
     animationQueue = [];
     commandQueue = [];
     isExecutingCommand = false;
     currentLevel = "Level2";
-
-    //Future possible abstractions:
-    //1) Class to handle creating the path lines (composite design pattern, factory design pattern?)
-    //2) Class to handle creating commands for interpreter (which design pattern?)
-    //3) Abstract "executeNextCommand" for when we have many interpreter commands
-    //4) Abstract out a class for handling tween creation, since we want the follower sprites grabbed from a part of the screen eventually, and we want the follower sprites to change!
-    //5) Add a "clear scene" button
 
     preload() {
         this.load.image('background', 'assets/background.png');
@@ -29,7 +21,6 @@ export default class Level2 extends Phaser.Scene {
     }
 
     initializeBackgroundGraphics() {
-        // Add the background image. This is where we want to place our sprite map when ready
         this.add.image(400, 300, 'background');
         console.log(`[${this.currentLevel}] Background image added.`);
 
@@ -37,28 +28,17 @@ export default class Level2 extends Phaser.Scene {
         console.log(`[${this.currentLevel}] Graphics object created.`);
     }
 
-    createPathLines() { //Use composite pattern to create our paths + handle follower management!
-        // Center line
-        this.centerLine = new Phaser.Curves.Line(
-            new Phaser.Math.Vector2(400, 100),
-            new Phaser.Math.Vector2(400, 400)
-        );
-        console.log(`[${this.currentLevel}] Center line created.`);
+    initializePathManager() {
+        this.pathManager = new PathManager(this);
 
-        // Left diagonal.
-        //We should export this to it's own class eventually to handle when we want to adjust lines on top of already existing lines!
-        this.leftLine = new Phaser.Curves.Line(
-            new Phaser.Math.Vector2(400, 400),
-            new Phaser.Math.Vector2(200, 550)
-        );
-        console.log(`[${this.currentLevel}] Left line created.`);
+        // Add lines
+        this.pathManager.addLine('center', {x:400, y:100}, {x:400, y:400});
+        this.pathManager.addLineFrom('left', 'center', {x:200, y:550});
+        this.pathManager.addLineFrom('right', 'center', {x:600, y:550});
 
-        // Right diagonal
-        this.rightLine = new Phaser.Curves.Line(
-            new Phaser.Math.Vector2(400, 400),
-            new Phaser.Math.Vector2(600, 550)
-        );
-        console.log(`[${this.currentLevel}] Right line created.`);
+        // Define paths
+        this.pathManager.definePath('moveleft', ['center', 'left']);
+        this.pathManager.definePath('moveright', ['center', 'right']);
     }
 
     defineInterpreterCommands() {
@@ -75,15 +55,12 @@ export default class Level2 extends Phaser.Scene {
 
     initializeRunCodeButton() {
         document.getElementById("enableCommands").addEventListener("click", () => {
-            //We should also add a "clear scene" button!
             let programText = C4C.Editor.getText();
             console.log(`[${this.currentLevel}] Run button clicked. Program text: ${programText}`);
             this.commandQueue = [];
             this.isExecutingCommand = false;
 
-            //Queues all commands
             C4C.Interpreter.run(programText);
-            // Start executing the queued commands one by one
             this.executeNextCommand();
         });
     }
@@ -91,9 +68,9 @@ export default class Level2 extends Phaser.Scene {
     create() {
         this.initializeEditorWindow();
         this.initializeBackgroundGraphics();
-        this.createPathLines();
+        this.initializePathManager();
         this.defineInterpreterCommands();
-        this.initializeRunCodeButtion();
+        this.initializeRunCodeButton();
     }
 
     queuePseudocodeCommand(commandType) {
@@ -102,11 +79,8 @@ export default class Level2 extends Phaser.Scene {
     }
 
     executeNextCommand() {
-        // If already executing a command or no commands in queue, return
-        let currentlyExecutingCommand = this.isExecutingCommand;
-        let noCommandsInQueue = this.commandQueue.length === 0;
-        if (currentlyExecutingCommand) return;
-        if (noCommandsInQueue) {
+        if (this.isExecutingCommand) return;
+        if (this.commandQueue.length === 0) {
             console.log(`[${this.currentLevel}] All commands completed.`);
             return;
         }
@@ -115,23 +89,25 @@ export default class Level2 extends Phaser.Scene {
         this.isExecutingCommand = true;
         console.log(`[${this.currentLevel}] Executing command: ${nextCommand}. Remaining: ${this.commandQueue.length}`);
 
-        //We should abstract this eventually for when we have MANY commands!
-        if (nextCommand === "moveleft") {
-            this.queueAnimation([this.centerLine, this.leftLine]);
-        } else if (nextCommand === "moveright") {
-            this.queueAnimation([this.centerLine, this.rightLine]);
+        // Use pathManager to get the path for the command
+        const pathLines = this.pathManager.getPath(nextCommand);
+        if (pathLines.length > 0) {
+            this.queueAnimation(pathLines);
+        } else {
+            console.warn(`[${this.currentLevel}] No path found for command: ${nextCommand}`);
+            this.isExecutingCommand = false;
+            this.executeNextCommand();
         }
     }
 
     queueAnimation(lines) {
-        this.animationQueue = lines;
+        this.animationQueue = [...lines];
         console.log(`[${this.currentLevel}] Animation queued. Queue length: ${lines.length}`);
         this.runNextAnimation();
     }
 
     runNextAnimation() {
         if (this.animationQueue.length === 0) {
-            // Animation sequence complete, mark command as finished and execute next command
             this.isExecutingCommand = false;
             console.log(`[${this.currentLevel}] Animation sequence complete. Ready for next command.`);
             this.executeNextCommand();
@@ -162,18 +138,14 @@ export default class Level2 extends Phaser.Scene {
     drawFollowerPosition() {
         this.graphics.fillStyle(0xff0000, 1);
         this.graphics.fillCircle(this.follower.vec.x, this.follower.vec.y, 16);
-        // Log follower position every frame
         console.log(`[${this.currentLevel}] update: Follower at x=${this.follower.vec.x.toFixed(2)}, y=${this.follower.vec.y.toFixed(2)}`);
     }
 
     update() {
         this.graphics.clear();
         this.graphics.lineStyle(4, 0xffffff, 1);
-
-        // Draw all three lines
-        this.centerLine.draw(this.graphics);
-        this.leftLine.draw(this.graphics);
-        this.rightLine.draw(this.graphics);
+        
+        this.pathManager.drawAll(this.graphics);
 
         this.drawFollowerPosition();
     }
