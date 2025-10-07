@@ -6,6 +6,7 @@
     <!-- Load Phaser from the local node_modules -->
     <script defer src="../node_modules/phaser/dist/phaser.js"></script>
     <script defer src="https://github.com/Code4Community/c4c-lib/releases/download/0.2.51/bundle.js"></script>
+    <script defer src = "js/popup.js"></script>
 
     <!-- Load Phaser game logic from game.js -->
     <!-- Separate into several files! game.js, then level by level code!-->
@@ -17,10 +18,23 @@
       integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
       crossorigin="anonymous"
     />
+    <link
+    rel="stylesheet"
+    href="styles/popup.css"/>
     <!-- STYLING PROVIDED VIA BOOTSTRAP. CUSTOMIZE IT LATER!-->
+   
 </head>
 <body>
-        <!-- Phaser Game Container. Integrate with rest of the body later!-->
+
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup" id="popup" style = "z-index: 1000000000;">
+        <span class="close" id="closePopup">&times;</span>
+        <p>Sign up for exclusive deals!</p>
+        <input type="email" placeholder="Your email">
+        <button>Submit</button>
+    </div>
+</div>
+      <!-- Phaser Game Container. Integrate with rest of the body later!-->
         <div id="game-container"></div>
         <nav class="navbar navbar-dark bg-dark bg-scarlet">
             <a href="#" class="navbar-brand">Sorting Game C4C</a>
