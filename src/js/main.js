@@ -14,7 +14,7 @@ const config = {
     dom: {
         createContainer: true,
       },
-    scene: Level2
+    scene: Level1
 };
 
 //Setting up the theme for the text editor
@@ -52,7 +52,7 @@ document.getElementById('level-select').addEventListener('change', (event) => {
       // Add more cases for additional levels later when added
       default:
           scene = 'DemoLevel';
-          game.scene.start(scene, Level2);
+          game.scene.start(scene, Level1);
           break;
   }
 });
@@ -97,6 +97,4 @@ function preload() {
   this.load.image("redTriangleDotted", "src/assets/candy_photos/red-triangle-dotted.png");
   this.load.image("redTriangle", "src/assets/candy_photos/red-triangle-nopattern.png");
   this.load.image("redTriangleStriped", "src/assets/candy_photos/red-triangle-striped.png");
-
-
 }
