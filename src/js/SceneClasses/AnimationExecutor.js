@@ -5,6 +5,7 @@ export default class AnimationExecutor {
         this.commandQueue = [];
         this.isAnimating = false;
         this.followerPosition = { x: 400, y: 300 };
+        this.speedPxPerSec = 300;
     }
 
     //Queue movement to a specific position
@@ -62,21 +63,43 @@ export default class AnimationExecutor {
     //Animate to a specific position
     animateToPosition(targetPosition) {
         this.isAnimating = true;
-        this.followerPosition = { ...targetPosition };
-        
-        //Update the visual follower position
+
+        const start = { x: this.followerPosition.x, y: this.followerPosition.y };
+        const end = { x: targetPosition.x, y: targetPosition.y };
+
+        this.animateAlongInvisibleLine(start, end);
+    }
+
+    animateAlongInvisibleLine(start, end) {
+        const line = new window.Phaser.Curves.Line(
+            new window.Phaser.Math.Vector2(start.x, start.y),
+            new window.Phaser.Math.Vector2(end.x, end.y)
+        );
+
+        const distance = window.Phaser.Math.Distance.Between(start.x, start.y, end.x, end.y);
+        const duration = Math.max(1, (distance / this.speedPxPerSec) * 1000);
+
+        const t = { value: 0 };
+        const temp = new window.Phaser.Math.Vector2();
         this.scene.tweens.add({
-            targets: this.followerPosition,
-            x: targetPosition.x,
-            y: targetPosition.y,
-            duration: 1000,
-            ease: 'Linear',
+            targets: t,
+            value: 1,
+            duration,
+            ease: 'Sine.easeInOut',
+            onUpdate: () => {
+                line.getPoint(t.value, temp);
+                this.followerPosition.x = temp.x;
+                this.followerPosition.y = temp.y;
+            },
             onComplete: () => {
+                this.followerPosition.x = end.x;
+                this.followerPosition.y = end.y;
                 this.isAnimating = false;
                 this.executeNextCommand();
             }
         });
     }
+
 
     handleCandyDump() {
         const result = this.pathManager.dumpCandy();
