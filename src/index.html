@@ -26,12 +26,27 @@
 </head>
 <body>
 
-<div class="popup-overlay" id="popupOverlay">
-    <div class="popup" id="popup" style = "z-index: 1000000000;">
+<div id="popup-overlay">
+    <div id="popup-content">
         <span class="close" id="closePopup">&times;</span>
-        <p>Sign up for exclusive deals!</p>
-        <input type="email" placeholder="Your email">
-        <button>Submit</button>
+        <h3> Welcome to Sorting Game! </h3>
+        
+        <div id = "instruction-container">
+          <div class = "instruction">
+              <h5>Actions:</h5>
+              <p>moveLeft&emsp;&emsp;moveRight&emsp;&emsp;moveUp&emsp;&emsp;moveDown&emsp;&emsp;wait</p>
+              <p>Use these instructions to move Polly 🏃‍➡️</p>
+              <p>For example, type moveLeft in the code window to make Polly move one square to the left 🦜</p>  
+          </div>
+          <br>
+          <div class = "instruction">
+              <h5>Looping:</h5>
+          </div>
+          <br>
+          <div class = "instruction">   
+              <h5>Conditional:</h5>
+          </div>
+        </div>
     </div>
 </div>
       <!-- Phaser Game Container. Integrate with rest of the body later!-->
