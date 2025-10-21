@@ -1,4 +1,5 @@
 export default class AnimationExecutor {
+    originalPosition = { x: 400, y: 300 };
     constructor(scene, pathManager) {
         this.scene = scene;
         this.pathManager = pathManager;
@@ -115,6 +116,8 @@ export default class AnimationExecutor {
     reset() {
         this.commandQueue = [];
         this.isAnimating = false;
-        this.followerPosition = this.pathManager.getCurrentPosition();
+        this.followerPosition = this.originalPosition
+        console.log(this.followerPosition)
+        console.log("testing from reset")
     }
 }
