@@ -1,14 +1,38 @@
-.popup-overlay {
+#popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* Slightly transparent */
-    display: block; /* Hidden by default */
     z-index: 100000;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
+}
+
+#popup-content {
+    background-color: white;
+    color: black;
+    padding: 20px;
+    width: 50%;
+    height:35%;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+}
+
+#instruction-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.instruction{
+    text-align: left;
+}
+
+p{
+margin : 0; 
+padding-top:0;
 }
