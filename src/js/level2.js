@@ -94,13 +94,11 @@ export default class Level2 extends Phaser.Scene {
         console.log(`[${this.currentLevel}] Candy ${candy.type} failed! Position:`, position);
         alert(`Candy ${candy.type} is not in the correct position! Try again.`);
         //TODO: We should replace this with something better- this alert popup is hideous
-            //Make something simialr to the animationExecutor.reset() method 
-        
         // we want to reset the candies position and the level too
 
         // should reset the candy
         this.animationExecutor.reset();
-        console.log("testing onCandyFailed")
+        //console.log("testing onCandyFailed")
 
 
     }

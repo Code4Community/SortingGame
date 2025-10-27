@@ -104,6 +104,8 @@ export default class AnimationExecutor {
         //TODO: Implement loading the sprites. 
             //RN, we just draw follower as a colored circle
             //The code below is to demonstrate how we could switch the candy view
+
+            // TODO: Make sure the same candy doesn't show up after success
         let color = 0xff0000; // Default red
         if (candyType.includes('blue')) color = 0x0000ff;
         else if (candyType.includes('green')) color = 0x00ff00;
@@ -117,7 +119,7 @@ export default class AnimationExecutor {
         this.commandQueue = [];
         this.isAnimating = false;
         this.followerPosition = this.originalPosition
-        console.log(this.followerPosition)
-        console.log("testing from reset")
+        // console.log(this.followerPosition)
+        // console.log("testing from reset")
     }
 }
