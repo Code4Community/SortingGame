@@ -17,7 +17,7 @@ export default class Level2 extends Phaser.Scene {
     initializeEditorWindow() {
         C4C.Editor.Window.init(this);
         C4C.Editor.Window.open();
-        C4C.Editor.setText('moveLeft\ndumpCandy');
+        C4C.Editor.setText('moveDown\nmoveLeft\nmoveLeft\ndumpCandy');
         console.log(`[${this.currentLevel}] Text editor initialized.`);
     }
 
@@ -124,7 +124,6 @@ export default class Level2 extends Phaser.Scene {
             let programText = C4C.Editor.getText();
             console.log(`[${this.currentLevel}] Run button clicked. Program text: ${programText}`);
             
-            this.setupLevelCandies();
             this.animationExecutor.reset();
 
             C4C.Interpreter.run(programText);
@@ -145,6 +144,8 @@ export default class Level2 extends Phaser.Scene {
         this.setupLevelCandies();
         this.defineInterpreterCommands();
         this.initializeRunCodeButton();
+
+        console.log(this.pathManager);
     }
 
     update() {
