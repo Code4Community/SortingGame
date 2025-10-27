@@ -9,9 +9,36 @@ export default class Level2 extends Phaser.Scene {
     commandManager;
     currentLevel = "Level2";
 
+    // Define the conveyor map
+    ConveyerMap = {
+        1: "ConveyerDown",
+        2: "ConveyerLeft",
+        3: "ConveyerRight",
+        4: "Connector",
+        5: "ConveyerAll"
+    };
+
+    // Define level layout
+    levelData = [
+        [0, 1, 0],
+        [2, 4, 3],
+        [0, 1, 0]
+    ];
+
     preload() {
-        this.load.image('background', 'assets/background.png');
-        console.log(`[${this.currentLevel}] Preloading background image.`);
+        // Load conveyor belt images
+        this.load.image('Connector', 'assets/conveyer_photos/Connector.png');
+        this.load.image('ConveyerDown', 'assets/conveyer_photos/ConveyerDown.png');
+        this.load.image('ConveyerAll', 'assets/conveyer_photos/ConnectorAll.png');
+        this.load.image('ConveyerLeft', 'assets/conveyer_photos/Left_Belt.png');
+        this.load.image('ConveyerRight', 'assets/conveyer_photos/Right_belt.png');
+        
+        // Load candy sprites
+        this.load.image('blue-circle', 'assets/candy_photos/blue-circle.png');
+        this.load.image('red-square', 'assets/candy_photos/red-square.png');
+        this.load.image('green-triangle', 'assets/candy_photos/green-triangle.png');
+        
+        console.log(`[${this.currentLevel}] Preloading conveyor belts and candy sprites.`);
     }
 
     initializeEditorWindow() {
@@ -22,23 +49,48 @@ export default class Level2 extends Phaser.Scene {
     }
 
     initializeBackgroundGraphics() {
-        this.add.image(400, 300, 'background');
-        console.log(`[${this.currentLevel}] Background image added.`);
-
         this.graphics = this.add.graphics();
         console.log(`[${this.currentLevel}] Graphics object created.`);
+        
+        // Render the conveyor belt level
+        this.renderLevelData();
+    }
+
+    renderLevelData() {
+        const tileSize = 64;
+        const offsetX = 200;
+        const offsetY = 100;
+
+        for (let row = 0; row < this.levelData.length; row++) {
+            for (let col = 0; col < this.levelData[row].length; col++) {
+                const tileType = this.levelData[row][col];
+                if (tileType === 0) continue;
+                
+                const textureKey = this.ConveyerMap[tileType];
+                const image = this.add.image(
+                    offsetX + col * tileSize, 
+                    offsetY + row * tileSize, 
+                    textureKey
+                ).setOrigin(0);
+                
+                image.setScale(2); // Scale up the conveyor images
+            }
+        }
+        
+        console.log(`[${this.currentLevel}] Level data rendered.`);
     }
 
     createLinesForConveyerBelt() {
-        this.pathManager.addLine('center', { x: 400, y: 100 }, { x: 400, y: 400 });
-        this.pathManager.addLineFrom('center', 'left', { x: 200, y: 400 });
-        // this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
-        // this.pathManager.addLineFrom('center', 'leftDown', { x: 200, y: 350 });
-        // this.pathManager.addLineFrom('center', 'rightDown', { x: 600, y: 150 });
+        this.pathManager.addLine('center', { x: 400, y: 100 }, { x: 400, y: 300 });
+        
+        // Left branch
+        this.pathManager.addLineFrom('center', 'left', { x: 200, y: 300 });
+        
+        // Right branch
+        this.pathManager.addLineFrom('center', 'right', { x: 600, y: 300 });
     }
 
     createIncrementalCommands() {
-        // Define incremental movement commands
         this.pathManager.defineIncrementalCommand('moveLeft', (currentPos) => {
             return { x: currentPos.x - 100, y: currentPos.y };
         });
@@ -67,9 +119,9 @@ export default class Level2 extends Phaser.Scene {
 
         //Define goal positions for each candy type. Again, adjust to using the Candy class
         const goalPositions = {
-            'blue-circle': { x: 200, y: 400 },    // Left bin
-            'red-square': { x: 600, y: 400 },     // Right bin
-            'green-triangle': { x: 400, y: 500 }  // Bottom bin
+            'blue-circle': { x: 200, y: 300 },    // Left bin
+            'red-square': { x: 600, y: 300 },     // Right bin
+            'green-triangle': { x: 400, y: 400 }  // Bottom bin
         };
 
         // Set up callbacks for candy completion
@@ -86,15 +138,15 @@ export default class Level2 extends Phaser.Scene {
     onCandySuccess(candy) {
         console.log(`[${this.currentLevel}] Candy ${candy.type} successfully sorted!`);
         //TODO: Implement some actual behavior here.
-        //This is when we want to transitiotn to the next candy, and then once all those are sorted END THE GAME!
-          //Make something simialr to the animationExecutor.reset() method 
+        //This is when we want to transition to the next candy, and then once all those are sorted END THE GAME!
+        //Make something similar to the animationExecutor.reset() method 
     }
 
     onCandyFailed(candy, position) {
         console.log(`[${this.currentLevel}] Candy ${candy.type} failed! Position:`, position);
         alert(`Candy ${candy.type} is not in the correct position! Try again.`);
         //TODO: We should replace this with something better- this alert popup is hideous
-            //Make something simialr to the animationExecutor.reset() method 
+        //Make something similar to the animationExecutor.reset() method 
     }
 
     defineInterpreterCommands() {

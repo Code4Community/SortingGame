@@ -14,7 +14,7 @@ const config = {
     dom: {
         createContainer: true,
       },
-    scene: Level1
+    scene: Level2
 };
 
 //Setting up the theme for the text editor
@@ -52,7 +52,7 @@ document.getElementById('level-select').addEventListener('change', (event) => {
       // Add more cases for additional levels later when added
       default:
           scene = 'DemoLevel';
-          game.scene.start(scene, Level1);
+          game.scene.start(scene, Level2);
           break;
   }
 });
