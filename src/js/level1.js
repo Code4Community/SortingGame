@@ -24,6 +24,8 @@ export default class Level1 extends Phaser.Scene {
         this.load.image('ConveyerAll', 'assets/conveyer_photos/ConnectorAll.png');
         this.load.image('ConveyerLeft', 'assets/conveyer_photos/Left_Belt.png');
         this.load.image('ConveyerRight', 'assets/conveyer_photos/Right_belt.png');
+        this.load.image('tester', 'assets/candy_photos/blue-square-dotted.png');
+        this.load.image('tester2', 'assets/candy_photos/red-triangle-dotted.png');
     }
 
     ConveyerMap = {
@@ -36,7 +38,13 @@ export default class Level1 extends Phaser.Scene {
 
     levelData = [
         [0, 1, 0],
+        [0, 1, 0],
+        [0, 1, 0],
+        [0, 1, 0],
+        [0, 1, 0],
         [2, 4, 3],
+        [1, 0, 1],
+        [1, 0, 1],
         [1, 0, 1]
     ];
 
@@ -74,8 +82,8 @@ export default class Level1 extends Phaser.Scene {
         document.getElementById("enableCommands").addEventListener("click", this.startTween);
 
         const tileSize = 64; // assuming each tile is 64x64 pixels
-        const offsetX = 200;
-        const offsetY = 100;
+        const offsetX = 305;
+        const offsetY = 0;
 
 
         for (var row = 0; row < this.levelData.length; row++) {
@@ -84,8 +92,16 @@ export default class Level1 extends Phaser.Scene {
                 var textureKey = this.ConveyerMap[tileType];
                 var image = this.add.image(offsetX + col * tileSize, offsetY + row * tileSize, textureKey).setOrigin(0);
                 image.setScale(2); 
+                image.setDepth(-1);
             }
         }
+
+        this.tester = this.add.image(700, 100, 'tester');
+        this.tester.setScale(2);
+
+        this.tester2 = this.add.image(700, 200, 'tester2');
+        this.tester2.setScale(2);
+
 
     }
 
