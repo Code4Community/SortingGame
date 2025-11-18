@@ -2,113 +2,142 @@ export default class AnimationExecutor {
     constructor(scene, pathManager) {
         this.scene = scene;
         this.pathManager = pathManager;
-        //Two types of commands in the queue: custom and path
         this.commandQueue = [];
-        //Ex: {type: 'path', command: 'moveleft'} 
-        //Ex: {type: 'custom', command: 'sampleCustomCommand', callback: function() { console.log("blah")}}
-        this.animationQueue = [];
-        this.isExecutingCommand = false;
-        this.follower = { t: 0, vec: new window.Phaser.Math.Vector2() }; //I think this is why the follower is appearing where it is right now...
+        this.isAnimating = false;
+        this.followerPosition = { x: 400, y: 300 };
+        this.speedPxPerSec = 300;
     }
 
-    queueCommand(commandType) {
-        this.commandQueue.push({ type: 'path', command: commandType });
-        console.log(`[${this.scene.currentLevel}] Path command ${commandType} queued. Total queued: ${this.commandQueue.length}`);
+    //Queue movement to a specific position
+    queueMovementToPosition(targetPosition) {
+        this.commandQueue.push({
+            type: 'movement',
+            targetPosition: targetPosition
+        });
     }
 
-    queueCustomCommand(commandName, callback) {
-        this.commandQueue.push({ type: 'custom', command: commandName, callback: callback });
-        console.log(`[${this.scene.currentLevel}] Custom command ${commandName} queued. Total queued: ${this.commandQueue.length}`);
+    queueCandyDump() {
+        this.commandQueue.push({
+            type: 'dumpCandy'
+        });
     }
 
+    queueCustomCommand(action) {
+        this.commandQueue.push({
+            type: 'custom',
+            action: action
+        });
+    }
+
+    // Execute the next command in the queue
     executeNextCommand() {
-        if (this.isExecutingCommand) return;
         if (this.commandQueue.length === 0) {
-            console.log(`[${this.scene.currentLevel}] All commands completed.`);
+            console.log("[AnimationExecutor] No more commands to execute.");
             return;
         }
 
-        const nextCommandObj = this.commandQueue.shift();
-        this.isExecutingCommand = true;
-        console.log(`[${this.scene.currentLevel}] Executing command: ${nextCommandObj.command}. Remaining: ${this.commandQueue.length}`);
-
-        if (nextCommandObj.type === 'path') {
-            console.log("Executing path command");
-            this._executePathCommand(nextCommandObj);
-        } else if (nextCommandObj.type === 'custom') {
-            console.log("Executing custom command");
-            this._executeCustomCommand(nextCommandObj);
-        }
-    }
-
-    _executePathCommand(nextCommandObj) {
-        const pathLines = this.pathManager.getPath(nextCommandObj.command);
-        if (pathLines.length > 0) {
-            this.queueAnimation(pathLines);
-        } else {
-            console.warn(`[${this.scene.currentLevel}] No path found for command: ${nextCommandObj.command}`);
-            this.isExecutingCommand = false;
-            this.executeNextCommand();
-        }
-    }
-
-    _executeCustomCommand(nextCommandObj) {
-        try {
-            nextCommandObj.callback.call(this.scene);
-            console.log(`[${this.scene.currentLevel}] Custom command ${nextCommandObj.command} executed.`);
-        } catch (error) {
-            console.error(`[${this.scene.currentLevel}] Error executing custom command:`, error);
-        }
-        this.isExecutingCommand = false;
-        this.executeNextCommand();
-    }
-
-    queueAnimation(lines) {
-        this.animationQueue = [...lines];
-        console.log(`[${this.scene.currentLevel}] Animation queued. Queue length: ${lines.length}`);
-        this.runNextAnimation();
-    }
-
-    runNextAnimation() {
-        if (this.animationQueue.length === 0) {
-            this.isExecutingCommand = false;
-            console.log(`[${this.scene.currentLevel}] Animation sequence complete. Ready for next command.`);
-            this.executeNextCommand();
+        if (this.isAnimating) {
+            console.log("[AnimationExecutor] Animation in progress, waiting...");
             return;
         }
 
-        const currentLine = this.animationQueue.shift();
-        this.follower.t = 0;
-        console.log(`[${this.scene.currentLevel}] Starting animation on line. Remaining queue length: ${this.animationQueue.length}`);
+        const command = this.commandQueue.shift();
+        
+        switch (command.type) {
+            case 'movement':
+                this.animateToPosition(command.targetPosition);
+                break;
+            case 'dumpCandy':
+                this.handleCandyDump();
+                break;
+            case 'custom':
+                command.action();
+                this.executeNextCommand();
+                break;
+            default:
+                console.warn(`[AnimationExecutor] Unknown command type: ${command.type}`);
+                this.executeNextCommand();
+        }
+    }
 
+    //Animate to a specific position
+    animateToPosition(targetPosition) {
+        this.isAnimating = true;
+
+        const start = { x: this.followerPosition.x, y: this.followerPosition.y };
+        const end = { x: targetPosition.x, y: targetPosition.y };
+
+        this.animateAlongInvisibleLine(start, end);
+    }
+
+    animateAlongInvisibleLine(start, end) {
+        const line = new window.Phaser.Curves.Line(
+            new window.Phaser.Math.Vector2(start.x, start.y),
+            new window.Phaser.Math.Vector2(end.x, end.y)
+        );
+
+        const distance = window.Phaser.Math.Distance.Between(start.x, start.y, end.x, end.y);
+        const duration = Math.max(1, (distance / this.speedPxPerSec) * 1000);
+
+        const t = { value: 0 };
+        const temp = new window.Phaser.Math.Vector2();
         this.scene.tweens.add({
-            targets: this.follower,
-            t: 1,
+            targets: t,
+            value: 1,
+            duration,
             ease: 'Sine.easeInOut',
-            duration: 1200,
             onUpdate: () => {
-                currentLine.getPoint(this.follower.t, this.follower.vec);
-                console.log(`[${this.scene.currentLevel}] Follower moving. t=${this.follower.t.toFixed(2)}, x=${this.follower.vec.x.toFixed(2)}, y=${this.follower.vec.y.toFixed(2)}`);
+                line.getPoint(t.value, temp);
+                this.followerPosition.x = temp.x;
+                this.followerPosition.y = temp.y;
             },
             onComplete: () => {
-                currentLine.getPoint(1, this.follower.vec);
-                console.log(`[${this.scene.currentLevel}] Animation complete for line. Follower at x=${this.follower.vec.x}, y=${this.follower.vec.y}`);
-                this.runNextAnimation();
+                this.followerPosition.x = end.x;
+                this.followerPosition.y = end.y;
+                this.isAnimating = false;
+                this.executeNextCommand();
             }
         });
     }
 
-    reset() { //Could be useful, Idk.
-        this.commandQueue = [];
-        this.animationQueue = [];
-        this.isExecutingCommand = false;
-        this.follower.t = 0;
-        this.follower.vec.set(0, 0);
+
+    handleCandyDump() {
+        const result = this.pathManager.dumpCandy();
+        
+        if (result.success) {
+            console.log("[AnimationExecutor] Candy successfully dumped!");
+            if (result.hasMoreCandies) {
+                //Reset follower position for next candy!!
+                this.followerPosition = this.pathManager.getCurrentPosition();
+                this.executeNextCommand();
+            } else {
+                console.log("[AnimationExecutor] All candies completed!");
+            }
+        } else {
+            console.log("[AnimationExecutor] Candy dump failed!");
+            this.executeNextCommand();
+        }
     }
 
     drawFollower(graphics) {
-        graphics.fillStyle(0xff0000, 1);
-        graphics.fillCircle(this.follower.vec.x, this.follower.vec.y, 16);
-        console.log(`[${this.scene.currentLevel}] update: Follower at x=${this.follower.vec.x.toFixed(2)}, y=${this.follower.vec.y.toFixed(2)}`);
+        const currentCandy = this.pathManager.getCurrentCandy();
+        const candyType = currentCandy ? currentCandy.type : 'default';
+        
+        //TODO: Implement loading the sprites. 
+            //RN, we just draw follower as a colored circle
+            //The code below is to demonstrate how we could switch the candy view
+        let color = 0xff0000; // Default red
+        if (candyType.includes('blue')) color = 0x0000ff;
+        else if (candyType.includes('green')) color = 0x00ff00;
+        else if (candyType.includes('red')) color = 0xff0000;
+        
+        graphics.fillStyle(color);
+        graphics.fillCircle(this.followerPosition.x, this.followerPosition.y, 20);
+    }
+
+    reset() {
+        this.commandQueue = [];
+        this.isAnimating = false;
+        this.followerPosition = this.pathManager.getCurrentPosition();
     }
 }

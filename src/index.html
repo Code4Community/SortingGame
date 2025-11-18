@@ -6,6 +6,7 @@
     <!-- Load Phaser from the local node_modules -->
     <script defer src="../node_modules/phaser/dist/phaser.js"></script>
     <script defer src="https://github.com/Code4Community/c4c-lib/releases/download/0.2.51/bundle.js"></script>
+    <script defer src = "js/popup.js"></script>
 
     <!-- Load Phaser game logic from game.js -->
     <!-- Separate into several files! game.js, then level by level code!-->
@@ -17,10 +18,38 @@
       integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
       crossorigin="anonymous"
     />
+    <link
+    rel="stylesheet"
+    href="styles/popup.css"/>
     <!-- STYLING PROVIDED VIA BOOTSTRAP. CUSTOMIZE IT LATER!-->
+   
 </head>
 <body>
-        <!-- Phaser Game Container. Integrate with rest of the body later!-->
+
+<div id="popup-overlay">
+    <div id="popup-content">
+        <span class="close" id="closePopup">&times;</span>
+        <h3> Welcome to Sorting Game! </h3>
+        
+        <div id = "instruction-container">
+          <div class = "instruction">
+              <h5>Actions:</h5>
+              <p>moveLeft&emsp;&emsp;moveRight&emsp;&emsp;moveUp&emsp;&emsp;moveDown&emsp;&emsp;wait</p>
+              <p>Use these instructions to move Polly 🏃‍➡️</p>
+              <p>For example, type moveLeft in the code window to make Polly move one square to the left 🦜</p>  
+          </div>
+          <br>
+          <div class = "instruction">
+              <h5>Looping:</h5>
+          </div>
+          <br>
+          <div class = "instruction">   
+              <h5>Conditional:</h5>
+          </div>
+        </div>
+    </div>
+</div>
+      <!-- Phaser Game Container. Integrate with rest of the body later!-->
         <div id="game-container"></div>
         <nav class="navbar navbar-dark bg-dark bg-scarlet">
             <a href="#" class="navbar-brand">Sorting Game C4C</a>

@@ -3,28 +3,32 @@ export default class CommandManager {
         this.scene = scene;
         this.pathManager = pathManager;
         this.animationExecutor = animationExecutor;
-        this.commandMappings = {}; // { commandName: pathName }
-        this.customCommands = {}; // { commandName: callback }
+        this.commandMappings = {}; // Initialize command mappings
+        this.customCommands = {}; // Initialize custom commands
     }
-
-    // Register a command with the interpreter and map it to a path.
-    defineCommandForPath(commandName, pathName = null) {
-        const targetPath = pathName || commandName;
-        this.commandMappings[commandName] = targetPath;
+        // Define incremental movement commands
+    defineIncrementalCommand(commandName) {
         C4C.Interpreter.define(commandName, () => {
-            console.log(`[${this.scene.currentLevel}] ${commandName} command executed.`);
-            this.executeCommand(commandName);
+            const newPosition = this.pathManager.executeIncrementalCommand(commandName);
+            this.animationExecutor.queueMovementToPosition(newPosition);
+            console.log(`[CommandManager] Incremental command '${commandName}' executed, new position:`, newPosition);
         });
-
-        console.log(`[${this.scene.currentLevel}] Command '${commandName}' registered -> path '${targetPath}'`);
     }
 
-    // Register a custom command that executes immediately once parsed by the runner!
+        // Define the dumpCandy command
+    defineDumpCandyCommand() {
+        C4C.Interpreter.define('dumpCandy', () => {
+            this.animationExecutor.queueCandyDump();
+            console.log(`[CommandManager] dumpCandy command queued`);
+        });
+    }
+
+    //Register a custom command that executes immediately once parsed by the runner!
     defineCustomCommand(commandName, callback) {
         C4C.Interpreter.define(commandName, callback);
     }
 
-    // Register a custom command that gets queued with animations 
+    //Register a custom command that gets queued with animations 
     defineQueuedCustomCommand(commandName, callback) {
         this.customCommands[commandName] = callback;
         C4C.Interpreter.define(commandName, () => {
