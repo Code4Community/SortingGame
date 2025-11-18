@@ -17,7 +17,7 @@ export default class Level2 extends Phaser.Scene {
     initializeEditorWindow() {
         C4C.Editor.Window.init(this);
         C4C.Editor.Window.open();
-        C4C.Editor.setText('moveLeft\ndumpCandy');
+        C4C.Editor.setText('moveDown\nmoveLeft\nmoveLeft\ndumpCandy');
         console.log(`[${this.currentLevel}] Text editor initialized.`);
     }
 
@@ -32,7 +32,7 @@ export default class Level2 extends Phaser.Scene {
     createLinesForConveyerBelt() {
         this.pathManager.addLine('center', { x: 400, y: 100 }, { x: 400, y: 400 });
         this.pathManager.addLineFrom('center', 'left', { x: 200, y: 400 });
-        // this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
+        this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
         // this.pathManager.addLineFrom('center', 'leftDown', { x: 200, y: 350 });
         // this.pathManager.addLineFrom('center', 'rightDown', { x: 600, y: 150 });
     }
@@ -94,7 +94,13 @@ export default class Level2 extends Phaser.Scene {
         console.log(`[${this.currentLevel}] Candy ${candy.type} failed! Position:`, position);
         alert(`Candy ${candy.type} is not in the correct position! Try again.`);
         //TODO: We should replace this with something better- this alert popup is hideous
-            //Make something simialr to the animationExecutor.reset() method 
+        // we want to reset the candies position and the level too
+
+        // should reset the candy
+        this.animationExecutor.reset();
+        //console.log("testing onCandyFailed")
+
+
     }
 
     defineInterpreterCommands() {
@@ -118,7 +124,6 @@ export default class Level2 extends Phaser.Scene {
             let programText = C4C.Editor.getText();
             console.log(`[${this.currentLevel}] Run button clicked. Program text: ${programText}`);
             
-            this.setupLevelCandies();
             this.animationExecutor.reset();
 
             C4C.Interpreter.run(programText);
@@ -139,6 +144,8 @@ export default class Level2 extends Phaser.Scene {
         this.setupLevelCandies();
         this.defineInterpreterCommands();
         this.initializeRunCodeButton();
+
+        console.log(this.pathManager);
     }
 
     update() {
