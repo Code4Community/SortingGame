@@ -1,3 +1,4 @@
+// ...existing code...
 export default class AnimationExecutor {
     constructor(scene, pathManager) {
         this.scene = scene;
@@ -6,13 +7,17 @@ export default class AnimationExecutor {
         this.isAnimating = false;
         this.followerPosition = { x: 400, y: 300 };
         this.speedPxPerSec = 300;
+
+        // Callbacks set by QueueManager
+        this.onMovementComplete = null;
+        this.onDumpComplete = null;
     }
 
     //Queue movement to a specific position
     queueMovementToPosition(targetPosition) {
         this.commandQueue.push({
             type: 'movement',
-            targetPosition: targetPosition
+            targetPosition: { x: targetPosition.x, y: targetPosition.y } // copy
         });
     }
 
@@ -52,11 +57,11 @@ export default class AnimationExecutor {
                 break;
             case 'custom':
                 command.action();
-                this.executeNextCommand();
+                // custom commands are immediate; report completion by calling the onDumpComplete handler conventionally
+                if (this.onDumpComplete) this.onDumpComplete({ success: true });
                 break;
             default:
                 console.warn(`[AnimationExecutor] Unknown command type: ${command.type}`);
-                this.executeNextCommand();
         }
     }
 
@@ -95,7 +100,12 @@ export default class AnimationExecutor {
                 this.followerPosition.x = end.x;
                 this.followerPosition.y = end.y;
                 this.isAnimating = false;
-                this.executeNextCommand();
+                // notify the QueueManager (if set) instead of auto-driving next
+                if (typeof this.onMovementComplete === 'function') {
+                    this.onMovementComplete({ x: end.x, y: end.y });
+                } else {
+                    this.executeNextCommand();
+                }
             }
         });
     }
@@ -104,18 +114,15 @@ export default class AnimationExecutor {
     handleCandyDump() {
         const result = this.pathManager.dumpCandy();
         
-        if (result.success) {
+        if (result && result.success) {
             console.log("[AnimationExecutor] Candy successfully dumped!");
-            if (result.hasMoreCandies) {
-                //Reset follower position for next candy!!
-                this.followerPosition = this.pathManager.getCurrentPosition();
-                this.executeNextCommand();
-            } else {
-                console.log("[AnimationExecutor] All candies completed!");
-            }
         } else {
             console.log("[AnimationExecutor] Candy dump failed!");
-            this.executeNextCommand();
+        }
+
+        // notify queue manager instead of executing next here
+        if (typeof this.onDumpComplete === 'function') {
+            this.onDumpComplete(result);
         }
     }
 
@@ -123,9 +130,6 @@ export default class AnimationExecutor {
         const currentCandy = this.pathManager.getCurrentCandy();
         const candyType = currentCandy ? currentCandy.type : 'default';
         
-        //TODO: Implement loading the sprites. 
-            //RN, we just draw follower as a colored circle
-            //The code below is to demonstrate how we could switch the candy view
         let color = 0xff0000; // Default red
         if (candyType.includes('blue')) color = 0x0000ff;
         else if (candyType.includes('green')) color = 0x00ff00;
@@ -138,6 +142,7 @@ export default class AnimationExecutor {
     reset() {
         this.commandQueue = [];
         this.isAnimating = false;
-        this.followerPosition = this.pathManager.getCurrentPosition();
+        const pos = this.pathManager.getCurrentPosition();
+        this.followerPosition = { x: pos.x, y: pos.y };
     }
 }

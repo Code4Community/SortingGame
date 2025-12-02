@@ -67,6 +67,10 @@ export default class PathManager {
         return this.currentPosition;
     }
 
+    getIncrementFunction(commandName) {
+        return this.incrementalCommands.get(commandName);
+    }
+
     setupCandyQueueAndGoalPositions(candies, goalPositions) {
         this.candyQueue = [...candies];
         this.goalPositions.clear();
@@ -96,7 +100,7 @@ export default class PathManager {
     //Reset position to starting point (called when starting new candy)
     resetPosition() {
         this.currentPosition = { ...this.startingPosition };
-        console.log(`[PathManager] Position reset to starting position:`, this.currentPosition);
+        console.log(`[PathManager] Position reset to starting position:`, this.startingPosition);
     }
 
     //Check if current candy is at its goal position
@@ -107,6 +111,7 @@ export default class PathManager {
         }
 
         const goalPosition = this.goalPositions.get(this.currentCandy.type);
+        console.log(`[Path Manager] Goal Position for Candy ${this.currentCandy}`);
         if (!goalPosition) {
             console.warn(`[PathManager] No goal position defined for candy type: ${this.currentCandy.type}`);
             return false;
