@@ -77,6 +77,10 @@ export default class PathManager {
         return this.currentPosition;
     }
 
+    getStartingPosition() {
+        return { ...this.startingPosition };
+    }
+
     getIncrementFunction(commandName) {
         return this.incrementalCommands.get(commandName);
     }

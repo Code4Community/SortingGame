@@ -7,7 +7,7 @@ export default class QueueManager {
     this.plannedPosition = this.pathManager.getCurrentPosition();
     console.log(
       "[QueueManager] Initialized. Planned position:",
-      this.plannedPosition
+      this.plannedPosition,
     );
     // wire animation callbacks
     this.animationExecutor.onMovementComplete = (pos) =>
@@ -21,7 +21,7 @@ export default class QueueManager {
     this.plannedPosition = this.pathManager.getCurrentPosition();
     console.log(
       "[QueueManager] Reset. Planned position:",
-      this.plannedPosition
+      this.plannedPosition,
     );
   }
 
@@ -40,48 +40,64 @@ export default class QueueManager {
       commandName,
     });
     console.log(
-      `[QueueManager] Scheduled movement '${commandName}' -> (${newPos.x}, ${newPos.y}). New Queue size: ${this.queue.length}`
+      `[QueueManager] Scheduled movement '${commandName}' -> (${newPos.x}, ${newPos.y}). New Queue size: ${this.queue.length}`,
     ); // MODIFIED/ADDED
   }
 
   scheduleDumpCandy() {
     this.queue.push({ type: "dumpCandy" });
+    // assume dumpCandy will cause PathManager to start next candy (reset to startingPosition)
+    // update plannedPosition now so subsequent scheduled moves target the next candy's coordinates
+    if (typeof this.pathManager.getStartingPosition === "function") {
+      this.plannedPosition = this.pathManager.getStartingPosition();
+    } else {
+      this.plannedPosition = this.pathManager.getCurrentPosition();
+    }
     console.log(
-      `[QueueManager] Scheduled dumpCandy. New Queue size: ${this.queue.length}`
-    ); // MODIFIED/ADDED
+      `[QueueManager] Scheduled dumpCandy. New Queue size: ${this.queue.length}. Planned position reset to:`,
+      this.plannedPosition,
+    );
   }
 
   scheduleCustom(action) {
     this.queue.push({ type: "custom", action });
     console.log(
-      `[QueueManager] Scheduled custom action. New Queue size: ${this.queue.length}`
+      `[QueueManager] Scheduled custom action. New Queue size: ${this.queue.length}`,
     );
   }
 
   // Start executing the queued commands (called after interpreter finishes queuing)
   startExecution() {
     console.log(
-      `[QueueManager] Starting execution of ${this.queue.length} commands.`
+      `[QueueManager] Starting execution of ${this.queue.length} commands.`,
     );
     // reset plannedPosition to current actual position to avoid drift if needed
     this.plannedPosition = this.pathManager.getCurrentPosition();
+    console.log(
+      `[QueueManager] Remaining Queue: ${JSON.stringify(this.queue, null, 2)}`,
+    );
     this._executeNext();
   }
 
   _executeNext() {
     if (this.queue.length === 0) {
-      console.log("[QueueManager] Queue empty. Execution finished."); // MODIFIED
+      console.log("[QueueManager] Queue empty. Execution finished.");
       return;
     }
     const cmd = this.queue.shift();
     console.log(
-      `[QueueManager] Executing next command: ${cmd.type}. Remaining in queue: ${this.queue.length}`
+      `[QueueManager] Executing next command: ${cmd.type}. Remaining in queue: ${this.queue.length}`,
     );
     switch (cmd.type) {
       case "movement":
         console.log(
-          `[QueueManager] Executing movement to (${cmd.targetPosition.x}, ${cmd.targetPosition.y})`
+          `[QueueManager] Executing movement to (${cmd.targetPosition.x}, ${cmd.targetPosition.y})`,
         );
+        // ensure visual follower is aligned to PathManager before starting a new movement
+        if (this.pathManager && this.animationExecutor) {
+          const pos = this.pathManager.getCurrentPosition();
+          this.animationExecutor.followerPosition = { x: pos.x, y: pos.y };
+        }
         // queue movement on animationExecutor (copy)
         this.animationExecutor.queueMovementToPosition({
           x: cmd.targetPosition.x,
@@ -109,14 +125,14 @@ export default class QueueManager {
   // Called by AnimationExecutor when a movement animation finishes
   _onMovementComplete(finalPos) {
     console.log(
-      `[QueueManager] Movement complete. Final position: (${finalPos.x}, ${finalPos.y})`
+      `[QueueManager] Movement complete. Final position: (${finalPos.x}, ${finalPos.y})`,
     );
     // commit the logical position to PathManager now that the animation finished
     this.pathManager.setCurrentPosition({ x: finalPos.x, y: finalPos.y });
     // sync plannedPosition to actual
     this.plannedPosition = this.pathManager.getCurrentPosition();
     console.log(
-      "[QueueManager] PathManager position updated. Continuing execution."
+      "[QueueManager] PathManager position updated. Continuing execution.",
     );
     // continue with next queued op
     this._executeNext();
@@ -125,11 +141,19 @@ export default class QueueManager {
   // Called by AnimationExecutor when dumpCandy finishes (result from PathManager.dumpCandy)
   _onDumpComplete(result) {
     console.log(
-      `[QueueManager] Dump complete. Result: ${JSON.stringify(result)}`
+      `[QueueManager] Dump complete. Result: ${JSON.stringify(result)}`,
     );
     // dumpCandy already updated PathManager when called; ensure plannedPosition follows it
     this.plannedPosition = this.pathManager.getCurrentPosition();
-    // If dumpCandy started next candy it will have reset PathManager position; keep that.
+    // sync visual follower to the new PathManager position (important for next candy)
+    if (this.animationExecutor) {
+      const pos = this.pathManager.getCurrentPosition();
+      this.animationExecutor.followerPosition = { x: pos.x, y: pos.y };
+      console.log(
+        `[QueueManager] Synced animation follower to PathManager position: (${pos.x}, ${pos.y})`,
+      );
+    }
+    // continue execution
     console.log("[QueueManager] Continuing execution after dump.");
     this._executeNext();
   }
