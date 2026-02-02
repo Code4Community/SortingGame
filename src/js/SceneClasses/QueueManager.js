@@ -153,7 +153,12 @@ export default class QueueManager {
         `[QueueManager] Synced animation follower to PathManager position: (${pos.x}, ${pos.y})`,
       );
     }
-    // continue execution
+    let allCandiesSucessfullyDumped =
+      result.success === true && result.hasMoreCandies === false;
+    if (allCandiesSucessfullyDumped) {
+      alert(`All Candies Sorted! Congrats! Move onto the next level`);
+    }
+    // continue execution, should probably check if empty queue here
     console.log("[QueueManager] Continuing execution after dump.");
     this._executeNext();
   }

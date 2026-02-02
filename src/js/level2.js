@@ -76,7 +76,7 @@ export default class Level2 extends Phaser.Scene {
     // Set up callbacks for candy completion
     this.pathManager.setCallbacks(
       (candy) => this.onCandySuccess(candy),
-      (candy, position) => this.onCandyFailed(candy, position)
+      (candy, position) => this.onCandyFailed(candy, position),
     );
 
     this.pathManager.setupCandyQueueAndGoalPositions(candies, goalPositions);
@@ -86,7 +86,7 @@ export default class Level2 extends Phaser.Scene {
   //want the same behavior for each case anyways, if so we can just export it to CommandManager
   onCandySuccess(candy) {
     console.log(
-      `[${this.currentLevel}] Candy ${candy.type} successfully sorted!`
+      `[${this.currentLevel}] Candy ${candy.type} successfully sorted!`,
     );
     //TODO: Implement some actual behavior here.
     //This is when we want to transitiotn to the next candy, and then once all those are sorted END THE GAME!
@@ -96,7 +96,7 @@ export default class Level2 extends Phaser.Scene {
   onCandyFailed(candy, position) {
     console.log(
       `[${this.currentLevel}] Candy ${candy.type} failed! Position:`,
-      position
+      position,
     );
     alert(`Candy ${candy.type} is not in the correct position! Try again.`);
     //TODO: We should replace this with something better- this alert popup is hideous
@@ -116,7 +116,7 @@ export default class Level2 extends Phaser.Scene {
 
     this.commandManager.defineQueuedCustomCommand("queuedCommand", () => {
       console.log(
-        "This is an example custom command that is queued according to animation, should run in animation sequence"
+        "This is an example custom command that is queued according to animation, should run in animation sequence",
       );
     });
   }
@@ -125,10 +125,8 @@ export default class Level2 extends Phaser.Scene {
     document.getElementById("enableCommands").addEventListener("click", () => {
       let programText = C4C.Editor.getText();
       console.log(
-        `[${this.currentLevel}] Run button clicked. Program text: ${programText}`
+        `[${this.currentLevel}] Run button clicked. Program text: ${programText}`,
       );
-
-      this.setupLevelCandies();
 
       // reset visual executor and queue manager before scheduling
       this.animationExecutor.reset();
@@ -140,7 +138,10 @@ export default class Level2 extends Phaser.Scene {
       C4C.Interpreter.run(programText);
 
       // Start executing scheduled actions (this drives AnimationExecutor)
-      if (this.queueManager && typeof this.queueManager.startExecution === "function") {
+      if (
+        this.queueManager &&
+        typeof this.queueManager.startExecution === "function"
+      ) {
         this.queueManager.startExecution();
       } else {
         // fallback for older flow: try to kick off executor directly
@@ -155,15 +156,15 @@ export default class Level2 extends Phaser.Scene {
     this.pathManager = new PathManager(this);
     this.animationExecutor = new AnimationExecutor(this, this.pathManager);
 
-    this.queueManager = (this.queueManager = new QueueManager(
+    this.queueManager = this.queueManager = new QueueManager(
       this.pathManager,
-      this.animationExecutor
-    ));
+      this.animationExecutor,
+    );
     this.commandManager = new CommandManager(
       this,
       this.pathManager,
       this.animationExecutor,
-      this.queueManager
+      this.queueManager,
     );
 
     //Set up the level
