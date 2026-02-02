@@ -18,7 +18,9 @@ export default class Level2 extends Phaser.Scene {
   initializeEditorWindow() {
     C4C.Editor.Window.init(this);
     C4C.Editor.Window.open();
-    C4C.Editor.setText("moveLeft\ndumpCandy");
+    C4C.Editor.setText(
+      "moveDown\nmoveLeft\nmoveLeft\ndumpCandy\nmoveDown\nmoveRight\nmoveRight\ndumpCandy\nmoveDown\nmoveDown\ndumpCandy",
+    );
     console.log(`[${this.currentLevel}] Text editor initialized.`);
   }
 
@@ -99,8 +101,9 @@ export default class Level2 extends Phaser.Scene {
       position,
     );
     alert(`Candy ${candy.type} is not in the correct position! Try again.`);
+
     //TODO: We should replace this with something better- this alert popup is hideous
-    //Make something simialr to the animationExecutor.reset() method
+    //Make something similar to the animationExecutor.reset() method
   }
 
   defineInterpreterCommands() {
@@ -128,7 +131,8 @@ export default class Level2 extends Phaser.Scene {
         `[${this.currentLevel}] Run button clicked. Program text: ${programText}`,
       );
 
-      // reset visual executor and queue manager before scheduling
+      // Always reset candies and positions before running commands
+      this.setupLevelCandies();
       this.animationExecutor.reset();
       if (this.queueManager && typeof this.queueManager.reset === "function") {
         this.queueManager.reset();
@@ -149,14 +153,36 @@ export default class Level2 extends Phaser.Scene {
       }
     });
   }
+  // Add a button to reset the level completely
+  initializeResetButton() {
+    let resetBtn = document.getElementById("resetLevel");
+    if (!resetBtn) {
+      resetBtn = document.createElement("button");
+      resetBtn.id = "resetLevel";
+      resetBtn.innerText = "Reset Level";
+      resetBtn.style.margin = "8px";
+      document.body.appendChild(resetBtn);
+    }
+    resetBtn.addEventListener("click", () => {
+      this.resetLevel();
+    });
+  }
+
+  resetLevel() {
+    console.log(`[${this.currentLevel}] Resetting Level.`);
+    this.setupLevelCandies();
+    this.animationExecutor.reset();
+    if (this.queueManager && typeof this.queueManager.reset === "function") {
+      this.queueManager.reset();
+    }
+  }
 
   create() {
     this.initializeEditorWindow();
     this.initializeBackgroundGraphics();
     this.pathManager = new PathManager(this);
     this.animationExecutor = new AnimationExecutor(this, this.pathManager);
-
-    this.queueManager = this.queueManager = new QueueManager(
+    this.queueManager = new QueueManager(
       this.pathManager,
       this.animationExecutor,
     );
@@ -173,6 +199,7 @@ export default class Level2 extends Phaser.Scene {
     this.setupLevelCandies();
     this.defineInterpreterCommands();
     this.initializeRunCodeButton();
+    this.initializeResetButton();
   }
 
   update() {
