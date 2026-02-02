@@ -2,6 +2,7 @@ import PathManager from "./SceneClasses/PathManager.js";
 import AnimationExecutor from "./SceneClasses/AnimationExecutor.js";
 import CommandManager from "./SceneClasses/CommandManager.js";
 import QueueManager from "./SceneClasses/QueueManager.js";
+import LevelHelper from "./SceneClasses/LevelHelper.js";
 
 export default class Level2 extends Phaser.Scene {
   graphics;
@@ -16,12 +17,10 @@ export default class Level2 extends Phaser.Scene {
   }
 
   initializeEditorWindow() {
-    C4C.Editor.Window.init(this);
-    C4C.Editor.Window.open();
-    C4C.Editor.setText(
+    LevelHelper.initializeEditorWindow(
+      this,
       "moveDown\nmoveLeft\nmoveLeft\ndumpCandy\nmoveDown\nmoveRight\nmoveRight\ndumpCandy\nmoveDown\nmoveDown\ndumpCandy",
     );
-    console.log(`[${this.currentLevel}] Text editor initialized.`);
   }
 
   initializeBackgroundGraphics() {
@@ -41,21 +40,11 @@ export default class Level2 extends Phaser.Scene {
   }
 
   createIncrementalCommands() {
-    // Define incremental movement commands
-    this.pathManager.defineIncrementalCommand("moveLeft", (currentPos) => {
-      return { x: currentPos.x - 100, y: currentPos.y };
-    });
-
-    this.pathManager.defineIncrementalCommand("moveRight", (currentPos) => {
-      return { x: currentPos.x + 100, y: currentPos.y };
-    });
-
-    this.pathManager.defineIncrementalCommand("moveUp", (currentPos) => {
-      return { x: currentPos.x, y: currentPos.y - 100 };
-    });
-
-    this.pathManager.defineIncrementalCommand("moveDown", (currentPos) => {
-      return { x: currentPos.x, y: currentPos.y + 100 };
+    LevelHelper.createIncrementalCommands(this.pathManager, {
+      moveLeft: (currentPos) => ({ x: currentPos.x - 100, y: currentPos.y }),
+      moveRight: (currentPos) => ({ x: currentPos.x + 100, y: currentPos.y }),
+      moveUp: (currentPos) => ({ x: currentPos.x, y: currentPos.y - 100 }),
+      moveDown: (currentPos) => ({ x: currentPos.x, y: currentPos.y + 100 }),
     });
   }
 
@@ -87,94 +76,57 @@ export default class Level2 extends Phaser.Scene {
   //Having these two methods below in Level2.js is fine for now- to be discussed if we just
   //want the same behavior for each case anyways, if so we can just export it to CommandManager
   onCandySuccess(candy) {
-    console.log(
-      `[${this.currentLevel}] Candy ${candy.type} successfully sorted!`,
-    );
-    //TODO: Implement some actual behavior here.
-    //This is when we want to transitiotn to the next candy, and then once all those are sorted END THE GAME!
-    //Make something simialr to the animationExecutor.reset() method
+    LevelHelper.onCandySuccess(this, candy);
   }
 
   onCandyFailed(candy, position) {
-    console.log(
-      `[${this.currentLevel}] Candy ${candy.type} failed! Position:`,
-      position,
-    );
-    alert(`Candy ${candy.type} is not in the correct position! Try again.`);
-
-    //TODO: We should replace this with something better- this alert popup is hideous
-    //Make something similar to the animationExecutor.reset() method
+    LevelHelper.onCandyFailed(this, candy, position);
   }
 
   defineInterpreterCommands() {
-    this.commandManager.defineIncrementalCommand("moveLeft");
-    this.commandManager.defineIncrementalCommand("moveRight");
-    this.commandManager.defineIncrementalCommand("moveUp");
-    this.commandManager.defineIncrementalCommand("moveDown");
-    this.commandManager.defineDumpCandyCommand();
-
-    this.commandManager.defineCustomCommand("sampleCommand", () => {
-      console.log("This is an example custom command, should run immediately");
-    });
-
-    this.commandManager.defineQueuedCustomCommand("queuedCommand", () => {
-      console.log(
-        "This is an example custom command that is queued according to animation, should run in animation sequence",
-      );
+    LevelHelper.defineInterpreterCommands(this.commandManager, {
+      immediate: {
+        sampleCommand: () => {
+          console.log(
+            "This is an example custom command, should run immediately",
+          );
+        },
+      },
+      queued: {
+        queuedCommand: () => {
+          console.log(
+            "This is an example custom command that is queued according to animation, should run in animation sequence",
+          );
+        },
+      },
     });
   }
 
   initializeRunCodeButton() {
-    document.getElementById("enableCommands").addEventListener("click", () => {
-      let programText = C4C.Editor.getText();
-      console.log(
-        `[${this.currentLevel}] Run button clicked. Program text: ${programText}`,
-      );
-
-      // Always reset candies and positions before running commands
-      this.setupLevelCandies();
-      this.animationExecutor.reset();
-      if (this.queueManager && typeof this.queueManager.reset === "function") {
-        this.queueManager.reset();
-      }
-
-      // Interpreter schedules actions onto QueueManager (does not execute animations yet)
-      C4C.Interpreter.run(programText);
-
-      // Start executing scheduled actions (this drives AnimationExecutor)
-      if (
-        this.queueManager &&
-        typeof this.queueManager.startExecution === "function"
-      ) {
-        this.queueManager.startExecution();
-      } else {
-        // fallback for older flow: try to kick off executor directly
-        this.animationExecutor.executeNextCommand();
-      }
-    });
+    LevelHelper.initializeRunCodeButton(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
   }
   // Add a button to reset the level completely
   initializeResetButton() {
-    let resetBtn = document.getElementById("resetLevel");
-    if (!resetBtn) {
-      resetBtn = document.createElement("button");
-      resetBtn.id = "resetLevel";
-      resetBtn.innerText = "Reset Level";
-      resetBtn.style.margin = "8px";
-      document.body.appendChild(resetBtn);
-    }
-    resetBtn.addEventListener("click", () => {
-      this.resetLevel();
-    });
+    LevelHelper.initializeResetButton(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
   }
 
   resetLevel() {
-    console.log(`[${this.currentLevel}] Resetting Level.`);
-    this.setupLevelCandies();
-    this.animationExecutor.reset();
-    if (this.queueManager && typeof this.queueManager.reset === "function") {
-      this.queueManager.reset();
-    }
+    LevelHelper.resetLevel(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
   }
 
   create() {
