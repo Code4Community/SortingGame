@@ -1,6 +1,6 @@
 //import Level1 from './scenes/Level1.js';
 import Level1 from './level1.js';
-import Level2 from './level2.js';
+//import Level2 from './level2.js';
 
 //Here, we import the level files. 
 //Later, we'll want to abstract this process into a function or switch case to call specific levels.
@@ -14,7 +14,7 @@ const config = {
     dom: {
         createContainer: true,
       },
-    scene: Level2
+    scene: Level1
 };
 
 //Setting up the theme for the text editor
@@ -52,7 +52,7 @@ document.getElementById('level-select').addEventListener('change', (event) => {
       // Add more cases for additional levels later when added
       default:
           scene = 'DemoLevel';
-          game.scene.start(scene, Level2);
+          game.scene.start(scene, Level1);
           break;
   }
 });
