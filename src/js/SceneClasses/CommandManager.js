@@ -1,25 +1,26 @@
 export default class CommandManager {
-    constructor(scene, pathManager, animationExecutor) {
+    constructor(scene, pathManager, animationExecutor, queueManager) {
         this.scene = scene;
         this.pathManager = pathManager;
         this.animationExecutor = animationExecutor;
+        this.queueManager = queueManager;
         this.commandMappings = {}; // Initialize command mappings
         this.customCommands = {}; // Initialize custom commands
     }
         // Define incremental movement commands
     defineIncrementalCommand(commandName) {
         C4C.Interpreter.define(commandName, () => {
-            const newPosition = this.pathManager.executeIncrementalCommand(commandName);
-            this.animationExecutor.queueMovementToPosition(newPosition);
-            console.log(`[CommandManager] Incremental command '${commandName}' executed, new position:`, newPosition);
+            // schedule via queue manager (does not commit logical position)
+            this.queueManager.scheduleIncremental(commandName);
+            console.log(`[CommandManager] Incremental command '${commandName}' scheduled`);
         });
     }
 
-        // Define the dumpCandy command
+    // Define the dumpCandy command
     defineDumpCandyCommand() {
         C4C.Interpreter.define('dumpCandy', () => {
-            this.animationExecutor.queueCandyDump();
-            console.log(`[CommandManager] dumpCandy command queued`);
+            this.queueManager.scheduleDumpCandy();
+            console.log(`[CommandManager] dumpCandy command scheduled`);
         });
     }
 
@@ -30,10 +31,9 @@ export default class CommandManager {
 
     //Register a custom command that gets queued with animations 
     defineQueuedCustomCommand(commandName, callback) {
-        this.customCommands[commandName] = callback;
         C4C.Interpreter.define(commandName, () => {
+            this.queueManager.scheduleCustom(callback);
             console.log(`[${this.scene.currentLevel}] ${commandName} queued custom command executed.`);
-            this.animationExecutor.queueCustomCommand(commandName, callback);
         });
     }
 

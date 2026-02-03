@@ -1,264 +1,164 @@
-import Candy, {Colors, Shapes, Patterns } from './candy.js';
+import PathManager from "./SceneClasses/PathManager.js";
+import AnimationExecutor from "./SceneClasses/AnimationExecutor.js";
+import CommandManager from "./SceneClasses/CommandManager.js";
+import QueueManager from "./SceneClasses/QueueManager.js";
+import LevelHelper from "./SceneClasses/LevelHelper.js";
+
 export default class Level1 extends Phaser.Scene {
+  graphics;
+  pathManager;
+  animationExecutor;
+  commandManager;
+  currentLevel = "Level1";
 
-    graphics;
-    path1;
-    path2;
-    path3;
-    follower;
-    isMoving = false;
+  preload() {
+    this.load.image("background", "assets/background.png");
+    console.log(`[${this.currentLevel}] Preloading background image.`);
+  }
 
-    preload() {
-        // Load the background image
-        //TO-DO: Add Texture manager: https://docs.phaser.io/phaser/concepts/textures
-        //Example candy implementation 
-        const blueStripedCircle = new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/blue_circle_striped.png');
-        //console.log(blueStripedCircle.imagePath === '../assets/blue_circle_striped.png');
-       // this.load.image('background', 'assets/background.png');
-        this.load.image('follower', blueStripedCircle.imagePath); // Load the candy image
-        //this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
+  initializeEditorWindow() {
+    LevelHelper.initializeEditorWindow(
+      this,
+      "moveDown\nmoveLeft\nmoveLeft\ndumpCandy\nmoveDown\nmoveRight\nmoveRight\ndumpCandy\nmoveDown\nmoveDown\ndumpCandy",
+    );
+  }
 
+  initializeBackgroundGraphics() {
+    this.add.image(400, 300, "background");
+    console.log(`[${this.currentLevel}] Background image added.`);
 
-        this.load.image('Connector', 'assets/conveyer_photos/Connector.png');
-        this.load.image('ConveyerDown', 'assets/conveyer_photos/ConveyerDown.png');
-        this.load.image('ConveyerAll', 'assets/conveyer_photos/ConnectorAll.png');
-        this.load.image('ConveyerLeft', 'assets/conveyer_photos/Left_Belt.png');
-        this.load.image('ConveyerRight', 'assets/conveyer_photos/Right_belt.png');
-        this.load.image('tester', 'assets/candy_photos/blue-square-dotted.png');
-        this.load.image('tester2', 'assets/candy_photos/red-triangle-dotted.png');
-    }
+    this.graphics = this.add.graphics();
+    console.log(`[${this.currentLevel}] Graphics object created.`);
+  }
 
-    ConveyerMap = {
-        0: "",  // Empty space
-        1: "ConveyerDown",
-        2: "ConveyerLeft",
-        3: "ConveyerRight",
-        4: "Connector",
-        5: "ConveyerAll"
-    };
+  createLinesForConveyerBelt() {
+    this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
+    this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
+    this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
+    this.pathManager.addLineFrom('center', 'leftDown', { x: 400, y: 500 });
+    // this.pathManager.addLineFrom('center', 'rightDown', { x: 600, y: 150 });
+  }
 
-    levelData = [
-        [0, 1, 0],
-        [0, 1, 0],
-        [0, 1, 0],
-        [0, 1, 0],
-        [0, 1, 0],
-        [2, 4, 3],
-        [1, 0, 1],
-        [1, 0, 1],
-        [1, 0, 1]
+  createIncrementalCommands() {
+    LevelHelper.createIncrementalCommands(this.pathManager, {
+      moveLeft: (currentPos) => ({ x: currentPos.x - 100, y: currentPos.y }),
+      moveRight: (currentPos) => ({ x: currentPos.x + 100, y: currentPos.y }),
+      moveUp: (currentPos) => ({ x: currentPos.x, y: currentPos.y - 100 }),
+      moveDown: (currentPos) => ({ x: currentPos.x, y: currentPos.y + 100 }),
+    });
+  }
+
+  setupLevelCandies() {
+    //Define the candies for this level
+    //TODO: Adjust this to use the Candy class!
+    const candies = [
+      { type: "blue-circle", id: 1 },
+      { type: "red-square", id: 2 },
+      { type: "green-triangle", id: 3 },
     ];
 
-    create() {
-        // Initialize the editor window
-        C4C.Editor.Window.init(this);   // Scene is passed in to this init function!
-        C4C.Editor.Window.open();
-        console.log("Text editor initialized.");
+    //Define goal positions for each candy type. Again, adjust to using the Candy class
+    const goalPositions = {
+      "blue-circle": { x: 200, y: 400 }, // Left bin
+      "red-square": { x: 600, y: 400 }, // Right bin
+      "green-triangle": { x: 400, y: 500 }, // Bottom bin
+    };
 
-        // Define interpreter commands
-        C4C.Interpreter.define("moveleft", () => {
-            //console.log("moveleft in text editor");
-            this.moveLeft();
-        });
+    // Set up callbacks for candy completion
+    this.pathManager.setCallbacks(
+      (candy) => this.onCandySuccess(candy),
+      (candy, position) => this.onCandyFailed(candy, position),
+    );
 
-        C4C.Interpreter.define("moveright", () => {
-            this.moveRight();
-        });
+    this.pathManager.setupCandyQueueAndGoalPositions(candies, goalPositions);
+  }
 
-        document.getElementById("enableCommands").addEventListener("click", (event) => {
-            let programText = C4C.Editor.getText();
-            console.log("Program text: ", programText);
-            C4C.Interpreter.run(programText);
-            runner.setProgram(programText);
-        });
+  //Having these two methods below in Level1.js is fine for now- to be discussed if we just
+  //want the same behavior for each case anyways, if so we can just export it to CommandManager
+  onCandySuccess(candy) {
+    LevelHelper.onCandySuccess(this, candy);
+  }
 
-        // Add the background image
-        //this.add.image(400, 300, 'background'); 
-        // Center the background
+  onCandyFailed(candy, position) {
+    LevelHelper.onCandyFailed(this, candy, position);
+  }
 
-        this.graphics = this.add.graphics();
-        this.initializePaths();
-        this.initializeFollower();
-
-        // Add event listener to the button
-        document.getElementById("enableCommands").addEventListener("click", this.startTween);
-
-        const tileSize = 64; // assuming each tile is 64x64 pixels
-        const offsetX = 305;
-        const offsetY = 0;
-
-
-        for (var row = 0; row < this.levelData.length; row++) {
-            for (var col = 0; col < this.levelData[row].length; col++) {
-                var tileType = this.levelData[row][col];
-                var textureKey = this.ConveyerMap[tileType];
-                if (textureKey === "") continue; // Skip empty spaces
-                var image = this.add.image(offsetX + col * tileSize, offsetY + row * tileSize, textureKey).setOrigin(0);
-                image.setScale(2); 
-                image.setDepth(-1);
-            }
-        }
-
-        this.tester = this.add.image(700, 100, 'tester');
-        this.tester.setScale(2);
-
-        this.tester2 = this.add.image(700, 200, 'tester2');
-        this.tester2.setScale(2);
-
-        //await delay(1000);
-        this.moveToCenter(this.tester);
-        //await delay(2000);
-        this.moveUpSpot(this.tester2);
-
-    }
-
-    moveToCenter = (gameObject) => {
-    this.tweens.add({
-        targets: gameObject,
-        x: 400,
-        y: 100,
-        ease: 'Power2',
-        duration: 2000
+  defineInterpreterCommands() {
+    LevelHelper.defineInterpreterCommands(this.commandManager, {
+      immediate: {
+        sampleCommand: () => {
+          console.log(
+            "This is an example custom command, should run immediately",
+          );
+        },
+      },
+      queued: {
+        queuedCommand: () => {
+          console.log(
+            "This is an example custom command that is queued according to animation, should run in animation sequence",
+          );
+        },
+      },
     });
-};
+  }
 
-    moveUpSpot = (gameObject) => {
-    this.tweens.add({
-        targets: gameObject,
-        x: 700,
-        y: gameObject.y - 100,
-        ease: 'Power2',
-        duration: 2000
-    });
-};
+  initializeRunCodeButton() {
+    LevelHelper.initializeRunCodeButton(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
+  }
+  // Add a button to reset the level completely
+  initializeResetButton() {
+    LevelHelper.initializeResetButton(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
+  }
 
+  resetLevel() {
+    LevelHelper.resetLevel(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
+  }
 
+  create() {
+    this.initializeEditorWindow();
+    this.initializeBackgroundGraphics();
+    this.pathManager = new PathManager(this);
+    this.animationExecutor = new AnimationExecutor(this, this.pathManager);
+    this.queueManager = new QueueManager(
+      this.pathManager,
+      this.animationExecutor,
+    );
+    this.commandManager = new CommandManager(
+      this,
+      this.pathManager,
+      this.animationExecutor,
+      this.queueManager,
+    );
 
-    initializePaths() {
-        // Create the path using 3 separate lines
-        const startline = new Phaser.Curves.Line([400, 0, 400, 300]);
-        const leftline = new Phaser.Curves.Line([400, 300, 300, 500]);
-        const rightline = new Phaser.Curves.Line([400, 300, 500, 500]);
+    //Set up the level
+    this.createLinesForConveyerBelt();
+    this.createIncrementalCommands();
+    this.setupLevelCandies();
+    this.defineInterpreterCommands();
+    this.initializeRunCodeButton();
+    this.initializeResetButton();
+  }
 
-        this.path1 = this.add.path();
-        this.path1.add(startline);
-
-        this.path2 = this.add.path();
-        this.path2.add(leftline);
-
-        this.path3 = this.add.path();
-        this.path3.add(rightline);
-    }
-
-    initializeFollower() {
-        this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
-        this.followerSprite = this.add.image(400, 0, 'follower'); // use the candy texture
-        this.followerSprite.setScale(2); // scale up if needed
-    }
-
-
-    startTween = () => {
-        this.follower.t = 0;
-        this.isMoving = true;
-        console.log("isMoving: ", this.isMoving);
-        this.tweens.add({
-            targets: this.follower,
-            t: 1,
-            ease: 'Linear',
-            duration: 1000,
-            onUpdate: () => {
-                this.path1.getPoint(this.follower.t, this.follower.vec);
-            },
-            onComplete: () => {
-                console.log("Start Path complete!");
-                this.handlePathCompletion();
-            }
-        });
-    };
-
-    handlePathCompletion() {
-        // //Logic to determine the next move based on user input or pseudo code
-        // const nextMove = this.getNextMove(); // Implement this function to determine the next move
-        // if (nextMove === "left") {
-        //     this.moveLeft();
-        // } else if (nextMove === "right") {
-        //     this.moveRight();
-        // } else {
-        //     this.isMoving = false;
-        // }
-    }
-
-    // getNextMove() {
-    // }
-
-    moveLeft = () => {
-        console.log("Move left function called");
-        this.follower.t = 1;
-        this.tweens.add({
-            targets: this.follower,
-            t: 2,
-            ease: 'Linear',
-            duration: 1000,
-            onUpdate: () => {
-                this.path2.getPoint(this.follower.t - 1, this.follower.vec);
-            },
-            onComplete: () => {
-                console.log("Left Path complete!");
-                this.handlePathCompletion();
-            }
-        });
-    };
-
-    moveRight = () => {
-        console.log("Move right function called");
-        this.follower.t = 2.001;
-        this.tweens.add({
-            targets: this.follower,
-            t: 3,
-            ease: 'Linear',
-            duration: 1000,
-            onUpdate: () => {
-                this.path3.getPoint(this.follower.t - 2, this.follower.vec);
-            },
-            onComplete: () => {
-                console.log("Right Path complete!");
-                this.handlePathCompletion();
-            }
-        });
-    };
-
-    update() {
-    // Clear debug graphics
+  update() {
     this.graphics.clear();
-    this.graphics.lineStyle(2, 0xffffff, 1);
+    this.graphics.lineStyle(4, 0xffffff, 1);
 
-    // Draw paths (optional, for debugging)
-    this.path1.draw(this.graphics);
-    this.path2.draw(this.graphics);
-    this.path3.draw(this.graphics);
-
-    // Update follower position
-    if (this.isMoving) {
-        if (this.follower.t <= 1) {
-            this.path1.getPoint(this.follower.t, this.follower.vec);
-        } else if (this.follower.t > 1 && this.follower.t <= 2) {
-            this.path2.getPoint(this.follower.t - 1, this.follower.vec);
-        } else if (this.follower.t > 2 && this.follower.t <= 3) {
-            this.path3.getPoint(this.follower.t - 2, this.follower.vec);
-        }
-
-        // Move the candy sprite instead of drawing a square
-        this.followerSprite.setPosition(this.follower.vec.x, this.follower.vec.y);
-    }
-    }
-
-
-    /*delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-    }*/
-
+    this.pathManager.drawAll(this.graphics);
+    this.animationExecutor.drawFollower(this.graphics);
+  }
 }
-
-//For debugging for casey later...
-// const canvas = document.getElementById('my-custom-canvas');
-// if (canvas) {console.log("Found?");} else { console.log("Not found?"); } 
