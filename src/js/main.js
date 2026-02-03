@@ -47,7 +47,7 @@ document.getElementById('level-select').addEventListener('change', (event) => {
           break;
       case '3':
           scene = 'Level2';
-          game.scene.start(scene, Level2);
+          game.scene.start(scene, Level1);
           break;
       // Add more cases for additional levels later when added
       default:

@@ -29,6 +29,7 @@ export default class Level1 extends Phaser.Scene {
     }
 
     ConveyerMap = {
+        0: "",  // Empty space
         1: "ConveyerDown",
         2: "ConveyerLeft",
         3: "ConveyerRight",
@@ -72,7 +73,8 @@ export default class Level1 extends Phaser.Scene {
         });
 
         // Add the background image
-        //this.add.image(400, 300, 'background'); // Center the background
+        //this.add.image(400, 300, 'background'); 
+        // Center the background
 
         this.graphics = this.add.graphics();
         this.initializePaths();
@@ -90,6 +92,7 @@ export default class Level1 extends Phaser.Scene {
             for (var col = 0; col < this.levelData[row].length; col++) {
                 var tileType = this.levelData[row][col];
                 var textureKey = this.ConveyerMap[tileType];
+                if (textureKey === "") continue; // Skip empty spaces
                 var image = this.add.image(offsetX + col * tileSize, offsetY + row * tileSize, textureKey).setOrigin(0);
                 image.setScale(2); 
                 image.setDepth(-1);
@@ -102,8 +105,34 @@ export default class Level1 extends Phaser.Scene {
         this.tester2 = this.add.image(700, 200, 'tester2');
         this.tester2.setScale(2);
 
+        //await delay(1000);
+        this.moveToCenter(this.tester);
+        //await delay(2000);
+        this.moveUpSpot(this.tester2);
 
     }
+
+    moveToCenter = (gameObject) => {
+    this.tweens.add({
+        targets: gameObject,
+        x: 400,
+        y: 100,
+        ease: 'Power2',
+        duration: 2000
+    });
+};
+
+    moveUpSpot = (gameObject) => {
+    this.tweens.add({
+        targets: gameObject,
+        x: 700,
+        y: gameObject.y - 100,
+        ease: 'Power2',
+        duration: 2000
+    });
+};
+
+
 
     initializePaths() {
         // Create the path using 3 separate lines
@@ -123,7 +152,10 @@ export default class Level1 extends Phaser.Scene {
 
     initializeFollower() {
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
+        this.followerSprite = this.add.image(400, 0, 'follower'); // use the candy texture
+        this.followerSprite.setScale(2); // scale up if needed
     }
+
 
     startTween = () => {
         this.follower.t = 0;
@@ -196,30 +228,35 @@ export default class Level1 extends Phaser.Scene {
     };
 
     update() {
-        //Clear the graphics object
-        this.graphics.clear();
-        this.graphics.lineStyle(2, 0xffffff, 1);
+    // Clear debug graphics
+    this.graphics.clear();
+    this.graphics.lineStyle(2, 0xffffff, 1);
 
-        //Draw the paths
-        this.path1.draw(this.graphics);
-        this.path2.draw(this.graphics);
-        this.path3.draw(this.graphics);
+    // Draw paths (optional, for debugging)
+    this.path1.draw(this.graphics);
+    this.path2.draw(this.graphics);
+    this.path3.draw(this.graphics);
 
-        //Get the position of the follower on the path
-        if (this.isMoving) {
-            if (this.follower.t <= 1) {
-                this.path1.getPoint(this.follower.t, this.follower.vec);
-            } else if (this.follower.t > 1 && this.follower.t <= 2) {
-                this.path2.getPoint(this.follower.t - 1, this.follower.vec);
-            } else if (this.follower.t > 2 && this.follower.t <= 3) {
-                this.path3.getPoint(this.follower.t - 2, this.follower.vec);
-            }
+    // Update follower position
+    if (this.isMoving) {
+        if (this.follower.t <= 1) {
+            this.path1.getPoint(this.follower.t, this.follower.vec);
+        } else if (this.follower.t > 1 && this.follower.t <= 2) {
+            this.path2.getPoint(this.follower.t - 1, this.follower.vec);
+        } else if (this.follower.t > 2 && this.follower.t <= 3) {
+            this.path3.getPoint(this.follower.t - 2, this.follower.vec);
         }
 
-        //Draw the follower as a red square
-        this.graphics.fillStyle(0xff0000, 1);
-        this.graphics.fillRect(this.follower.vec.x - 8, this.follower.vec.y - 8, 16, 16);
+        // Move the candy sprite instead of drawing a square
+        this.followerSprite.setPosition(this.follower.vec.x, this.follower.vec.y);
     }
+    }
+
+
+    /*delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+    }*/
+
 }
 
 //For debugging for casey later...
