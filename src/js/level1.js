@@ -14,10 +14,39 @@ export default class Level1 extends Phaser.Scene {
         //Example candy implementation 
         const blueStripedCircle = new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.STRIPED, '../assets/candy_photos/blue_circle_striped.png');
         //console.log(blueStripedCircle.imagePath === '../assets/blue_circle_striped.png');
-        this.load.image('background', 'assets/background.png');
+       // this.load.image('background', 'assets/background.png');
         this.load.image('follower', blueStripedCircle.imagePath); // Load the candy image
         //this.load.image('follower', 'assets/follower.png'); // Optional: Load a follower sprite
+
+
+        this.load.image('Connector', 'assets/conveyer_photos/Connector.png');
+        this.load.image('ConveyerDown', 'assets/conveyer_photos/ConveyerDown.png');
+        this.load.image('ConveyerAll', 'assets/conveyer_photos/ConnectorAll.png');
+        this.load.image('ConveyerLeft', 'assets/conveyer_photos/Left_Belt.png');
+        this.load.image('ConveyerRight', 'assets/conveyer_photos/Right_belt.png');
+        this.load.image('tester', 'assets/candy_photos/blue-square-dotted.png');
+        this.load.image('tester2', 'assets/candy_photos/red-triangle-dotted.png');
     }
+
+    ConveyerMap = {
+        1: "ConveyerDown",
+        2: "ConveyerLeft",
+        3: "ConveyerRight",
+        4: "Connector",
+        5: "ConveyerAll"
+    };
+
+    levelData = [
+        [0, 1, 0],
+        [0, 1, 0],
+        [0, 1, 0],
+        [0, 1, 0],
+        [0, 1, 0],
+        [2, 4, 3],
+        [1, 0, 1],
+        [1, 0, 1],
+        [1, 0, 1]
+    ];
 
     create() {
         // Initialize the editor window
@@ -43,7 +72,7 @@ export default class Level1 extends Phaser.Scene {
         });
 
         // Add the background image
-        this.add.image(400, 300, 'background'); // Center the background
+        //this.add.image(400, 300, 'background'); // Center the background
 
         this.graphics = this.add.graphics();
         this.initializePaths();
@@ -51,6 +80,29 @@ export default class Level1 extends Phaser.Scene {
 
         // Add event listener to the button
         document.getElementById("enableCommands").addEventListener("click", this.startTween);
+
+        const tileSize = 64; // assuming each tile is 64x64 pixels
+        const offsetX = 305;
+        const offsetY = 0;
+
+
+        for (var row = 0; row < this.levelData.length; row++) {
+            for (var col = 0; col < this.levelData[row].length; col++) {
+                var tileType = this.levelData[row][col];
+                var textureKey = this.ConveyerMap[tileType];
+                var image = this.add.image(offsetX + col * tileSize, offsetY + row * tileSize, textureKey).setOrigin(0);
+                image.setScale(2); 
+                image.setDepth(-1);
+            }
+        }
+
+        this.tester = this.add.image(700, 100, 'tester');
+        this.tester.setScale(2);
+
+        this.tester2 = this.add.image(700, 200, 'tester2');
+        this.tester2.setScale(2);
+
+
     }
 
     initializePaths() {
