@@ -9,6 +9,7 @@ export default class Level1 extends Phaser.Scene {
   pathManager;
   animationExecutor;
   commandManager;
+  levelHelper;
   currentLevel = "Level1";
 
   preload() {
@@ -34,9 +35,8 @@ export default class Level1 extends Phaser.Scene {
   createLinesForConveyerBelt() {
     this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
     this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
-    this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
-    this.pathManager.addLineFrom('center', 'leftDown', { x: 400, y: 500 });
-    // this.pathManager.addLineFrom('center', 'rightDown', { x: 600, y: 150 });
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
   }
 
   createIncrementalCommands() {
@@ -80,7 +80,7 @@ export default class Level1 extends Phaser.Scene {
   }
 
   onCandyFailed(candy, position) {
-    LevelHelper.onCandyFailed(this, candy, position);
+    this.levelHelper.onCandyFailed(this, candy, position);
   }
 
   defineInterpreterCommands() {
@@ -120,15 +120,6 @@ export default class Level1 extends Phaser.Scene {
     );
   }
 
-  resetLevel() {
-    LevelHelper.resetLevel(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
-  }
-
   create() {
     this.initializeEditorWindow();
     this.initializeBackgroundGraphics();
@@ -138,12 +129,21 @@ export default class Level1 extends Phaser.Scene {
       this.pathManager,
       this.animationExecutor,
     );
+
     this.commandManager = new CommandManager(
       this,
       this.pathManager,
       this.animationExecutor,
       this.queueManager,
     );
+
+    this.levelHelper = new LevelHelper({
+      scene: this.scene,
+      setupLevelCandies: this.setupLevelCandies,
+      pathManager: this.pathManager,
+      queueManager: this.queueManager,
+      animationExecutor: this.animationExecutor,
+    });
 
     //Set up the level
     this.createLinesForConveyerBelt();
