@@ -35,8 +35,7 @@ export default class Level1 extends Phaser.Scene {
     this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
     this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
     this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
-    this.pathManager.addLineFrom('center', 'leftDown', { x: 400, y: 500 });
-    // this.pathManager.addLineFrom('center', 'rightDown', { x: 600, y: 150 });
+    this.pathManager.addLineFrom('center', 'down', { x: 400, y: 500 });
   }
 
   createIncrementalCommands() {
