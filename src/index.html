@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Sorting Game</title>
+    <title>Sweet Sorter</title>
     <!-- Load Phaser from the local node_modules -->
     <script defer src="../node_modules/phaser/dist/phaser.js"></script>
     <script defer src="https://github.com/Code4Community/c4c-lib/releases/download/0.2.51/bundle.js"></script>
@@ -29,7 +29,7 @@
 <div id="popup-overlay">
     <div id="popup-content">
         <span class="close" id="closePopup">&times;</span>
-        <h3> Welcome to Sorting Game! </h3>
+        <h3> Welcome to Sweet Sorter! </h3>
         
         <div id = "instruction-container">
           <div class = "instruction">
@@ -52,7 +52,7 @@
       <!-- Phaser Game Container. Integrate with rest of the body later!-->
         <div id="game-container"></div>
         <nav class="navbar navbar-dark bg-dark bg-scarlet">
-            <a href="#" class="navbar-brand">Sorting Game C4C</a>
+            <a href="#" class="navbar-brand">Sweet Sorter C4C</a>
             <div id="navbar-inputs">
                 <select class="form-control" id="level-select">
                     <option value="1" selected>Demo Level</option>
@@ -68,6 +68,7 @@
     
         <div id="NavBar">
           <div class="text-center">
+            <button id="resetLevel" type="button" class="btn btn-primary">Reset Level</button>
             <button id="nextLevel" type="button" class="btn btn-success">Next Level</button>
             &nbsp;
             <button id="enableCommands" type="button" class="btn btn-primary">Run Commands</button>

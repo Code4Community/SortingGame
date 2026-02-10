@@ -1,8 +1,7 @@
 export default class PathManager {
   constructor(scene) {
     this.scene = scene;
-    this.lines = new Map(); //Stores phaser line objects with the count of times referenced
-    this.paths = new Map(); //Stores our paths with a count value attached to it
+    this.paths = new Map(); //Stores phaser line objects with the count of times referenced
     this.currentPosition = { x: 400, y: 300 }; // Starting position
     this.startingPosition = { x: 400, y: 300 }; //Remember the starting position, TODO: Grab the one frorm Animation Executor!
     this.incrementalCommands = new Map(); //Store increment functions
@@ -25,16 +24,16 @@ export default class PathManager {
     const startVec = new window.Phaser.Math.Vector2(start.x, start.y);
     const endVec = new window.Phaser.Math.Vector2(end.x, end.y);
 
-    this.lines[name] = new window.Phaser.Curves.Line(startVec, endVec);
+    this.paths[name] = new window.Phaser.Curves.Line(startVec, endVec);
     console.log(
       `[PathManager] Created line: '${name}' from (${start.x}, ${start.y}) to (${end.x}, ${end.y})`,
     ); // MODIFIED/ADDED
-    return this.lines[name];
+    return this.paths[name];
   }
 
   //Creates a new line that starts where another line ends, where "end" is the final destination point
   addLineFrom(fromLineName, newLineName, end) {
-    const fromLine = this.lines[fromLineName];
+    const fromLine = this.paths[fromLineName];
     if (!fromLine) {
       console.error(
         `[PathManager] Cannot add line. Line '${fromLineName}' not found`,
@@ -207,6 +206,7 @@ export default class PathManager {
       if (this.onCandyFailed) {
         console.log(`[PathManager] Calling onCandyFailed callback.`);
         this.onCandyFailed(this.currentCandy, this.currentPosition);
+        console.log(this);
       }
 
       // The failed candy remains the current candy until manually addressed, but we return the queue status.
@@ -246,6 +246,6 @@ export default class PathManager {
   }
 
   drawAll(graphics) {
-    Object.values(this.lines).forEach((line) => line.draw(graphics));
+    Object.values(this.paths).forEach((line) => line.draw(graphics));
   }
 }

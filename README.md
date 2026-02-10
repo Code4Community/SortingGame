@@ -1,2 +1,2 @@
-# SortingGame
-Sorting Game
+# Sweet Sorter
+Sweet Sorter

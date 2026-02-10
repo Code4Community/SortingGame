@@ -2,6 +2,21 @@
 // Utility class to abstract common level setup and UI logic for C4C SortingGame levels
 
 export default class LevelHelper {
+  constructor({
+    scene,
+    setupLevelCandies,
+    animationExecutor,
+    queueManager,
+    pathManager,
+  }) {
+    this.scene = scene;
+    this.pathManager = pathManager;
+    this.animationExecutor = animationExecutor;
+    this.queueManager = queueManager;
+    this.setupLevelCandies = setupLevelCandies;
+    console.log(`[LevelHelper] Initialized`);
+  }
+
   static initializeEditorWindow(scene, initialText = "") {
     C4C.Editor.Window.init(scene);
     C4C.Editor.Window.open();
@@ -23,12 +38,14 @@ export default class LevelHelper {
     // Extend or override in level if needed
   }
 
-  static onCandyFailed(scene, candy, position) {
+  //this isn't static because I wanted it to recognize resetLevel()
+  onCandyFailed(scene, candy, position) {
     console.log(
       `[${scene.currentLevel}] Candy ${candy.type} failed! Position:`,
       position,
     );
     alert(`Candy ${candy.type} is not in the correct position! Try again.`);
+    this.resetLevel();
     // Extend or override in level if needed
   }
 
@@ -100,11 +117,11 @@ export default class LevelHelper {
     });
   }
 
-  static resetLevel(scene, setupLevelCandies, animationExecutor, queueManager) {
-    setupLevelCandies();
-    animationExecutor.reset();
-    if (queueManager && typeof queueManager.reset === "function") {
-      queueManager.reset();
+  resetLevel() {
+    this.setupLevelCandies;
+    this.animationExecutor.reset();
+    if (this.queueManager && typeof this.queueManager.reset === "function") {
+      this.queueManager.reset();
     }
   }
 }
