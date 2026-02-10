@@ -25,22 +25,6 @@ export default class AnimationExecutor {
     console.log(
       `[AnimationExecutor] Queued movement to (${targetPosition.x}, ${targetPosition.y}). Queue size: ${this.commandQueue.length}`,
     );
-
-    let onPath = false;
-    // if the queued movement target is out of bounds (off the conveyer), display a popup for now
-    for (const value of Object.values(this.pathManager.lines)) {
-      console.log("Start:", value.p0.x, value.p0.y);
-      console.log("End:", value.p1.x, value.p1.y);
-      if (targetPosition.x == value.p0.x && targetPosition.y == value.p0.y ||
-          targetPosition.x == value.p1.x && targetPosition.y == value.p1.y) {
-            onPath = true;
-          }
-    }
-
-    if (!onPath) {
-      console.log("Candy fell of conveyer belt");
-    }
-
   }
 
   queueCandyDump() {
@@ -167,6 +151,23 @@ export default class AnimationExecutor {
             "[AnimationExecutor] onMovementComplete callback missing. Auto-executing next command.",
           );
           this.executeNextCommand();
+        }
+
+        // Handles if candy falls off path(s)
+        let onPath = false;
+        // if the queued movement target is out of bounds (off the conveyer), console log for now
+        for (const value of Object.values(this.pathManager.lines)) {
+          console.log("Start:", value.p0.x, value.p0.y);
+          console.log("End:", value.p1.x, value.p1.y);
+          // idk if this is the best way to check
+          if (end.x == value.p0.x && end.y == value.p0.y ||
+              end.x == value.p1.x && end.y == value.p1.y) {
+                onPath = true;
+              }
+        }
+        if (!onPath) {
+          console.log("***** CANDY FELL OF CONVEYER BELT *****");
+          alert("CANDY FELL OF CONVEYER BELT");
         }
       },
     });
