@@ -4,7 +4,7 @@ export default class PathManager {
     this.lines = new Map(); //Stores phaser line objects with the count of times referenced
     this.paths = new Map(); //Stores our paths with a count value attached to it
     this.currentPosition = { x: 400, y: 300 }; // Starting position
-    this.startingPosition = { x: 400, y: 300 }; //Remember the starting position, TODO: Grab the one frorm Animation Executor!
+    this.startingPosition = { x: 400, y: 300 }; //Remember the starting position, TODO: Grab the one from Animation Executor!
     this.incrementalCommands = new Map(); //Store increment functions
     this.goalPositions = new Map(); //Store goal positions for each candy type
     this.currentCandy = null; //Track current candy being processed
@@ -18,17 +18,13 @@ export default class PathManager {
   }
 
   addLine(name, start, end) {
-    // Original console.logs removed or consolidated for clarity
-    // console.log('Start object:', start);
-    // console.log('Start.x:', start.x);
-
     const startVec = new window.Phaser.Math.Vector2(start.x, start.y);
     const endVec = new window.Phaser.Math.Vector2(end.x, end.y);
 
     this.lines[name] = new window.Phaser.Curves.Line(startVec, endVec);
     console.log(
       `[PathManager] Created line: '${name}' from (${start.x}, ${start.y}) to (${end.x}, ${end.y})`,
-    ); // MODIFIED/ADDED
+    );
     return this.lines[name];
   }
 
@@ -41,9 +37,6 @@ export default class PathManager {
       );
       throw new Error(`Line ${fromLineName} not found`);
     }
-
-    // console.log('fromLine:', fromLine); // Original log removed
-
     var endPoint;
     if (fromLine.getPoint) {
       endPoint = this._getEndpointOfFromLine(fromLine);
@@ -82,13 +75,13 @@ export default class PathManager {
       this.currentPosition = { ...newPosition };
       console.log(
         `[PathManager] Executed '${commandName}'. Position changed from (${oldPosition.x}, ${oldPosition.y}) to (${this.currentPosition.x}, ${this.currentPosition.y})`,
-      ); // MODIFIED/ADDED
+      );
       return this.currentPosition;
     }
     console.warn(
       `[PathManager] Incremental command '${commandName}' not found. Position remains:`,
       this.currentPosition,
-    ); // MODIFIED/ADDED
+    );
     return this.currentPosition;
   }
 
@@ -127,7 +120,7 @@ export default class PathManager {
       this.resetPosition();
       console.log(
         `[PathManager] Starting next candy: ${this.currentCandy.type}. Remaining in queue: ${this.candyQueue.length}`,
-      ); // MODIFIED/ADDED
+      );
       return true;
     } else {
       this.currentCandy = null;
@@ -141,7 +134,7 @@ export default class PathManager {
     this.currentPosition = { ...this.startingPosition };
     console.log(
       `[PathManager] Position reset to starting position: (${this.startingPosition.x}, ${this.startingPosition.y})`,
-    ); // MODIFIED/ADDED
+    );
   }
 
   //Check if current candy is at its goal position
@@ -169,7 +162,7 @@ export default class PathManager {
 
     console.log(
       `[PathManager] Checking goal for ${this.currentCandy.type} (Tolerance: ${tolerance}). Current: (${this.currentPosition.x}, ${this.currentPosition.y}) | Goal: (${goalPosition.x}, ${goalPosition.y}). Match: ${isAtGoal}`,
-    ); // MODIFIED/ADDED
+    );
 
     return isAtGoal;
   }
@@ -214,6 +207,61 @@ export default class PathManager {
     }
   }
 
+  /**
+   * Validates if the candy's current position exists on any defined path.
+   * @param {object} positionOfCandy - The {x, y} coordinates to validate.
+   * @returns {boolean} - True if the candy is safely on a conveyer line.
+   */
+  checkCandyPositionOnLines(positionOfCandy) {
+    const LINE_PROXIMITY_TOLERANCE = 2;
+    const candyPoint = new window.Phaser.Math.Vector2(
+      positionOfCandy.x,
+      positionOfCandy.y,
+    );
+
+    // Convert lines object to array for iteration
+    const linesList = Object.values(this.lines);
+
+    const isOnPath = linesList.some((curve) => {
+      // 1. Create a Geometric Line from the Curve's start (p0) and end (p1)
+      const geomLine = new window.Phaser.Geom.Line(
+        curve.p0.x,
+        curve.p0.y,
+        curve.p1.x,
+        curve.p1.y,
+      );
+
+      // 2. Use Phaser.Geom.Line.GetNearestPoint (static method)
+      const closestPoint = window.Phaser.Geom.Line.GetNearestPoint(
+        geomLine,
+        candyPoint,
+      );
+
+      // 3. Measure distance
+      const distanceToLine = window.Phaser.Math.Distance.BetweenPoints(
+        candyPoint,
+        closestPoint,
+      );
+
+      return distanceToLine <= LINE_PROXIMITY_TOLERANCE;
+    });
+
+    if (!isOnPath) {
+      this._logCandyOffPath(positionOfCandy);
+    }
+
+    return isOnPath;
+  }
+
+  _logCandyOffPath(pos) {
+    alert(
+      `[PathManager] Validation Failed: Candy at (${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}) is off the path.`,
+    );
+    console.error(
+      `[PathManager] Validation Failed: Candy at (${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}) is off the path.`,
+    );
+  }
+
   /* Getters and Setters */
   //Get current position
   getCurrentPosition() {
@@ -225,7 +273,7 @@ export default class PathManager {
     this.currentPosition = { ...position };
     console.log(
       `[PathManager] Position manually set to: (${this.currentPosition.x}, ${this.currentPosition.y})`,
-    ); // MODIFIED/ADDED
+    );
   }
 
   //Get current candy being processed

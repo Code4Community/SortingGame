@@ -34,8 +34,8 @@ export default class Level1 extends Phaser.Scene {
   createLinesForConveyerBelt() {
     this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
     this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
-    this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
-    this.pathManager.addLineFrom('center', 'down', { x: 400, y: 500 });
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
   }
 
   createIncrementalCommands() {
@@ -120,12 +120,7 @@ export default class Level1 extends Phaser.Scene {
   }
 
   resetLevel() {
-    LevelHelper.resetLevel(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.resetLevel();
   }
 
   create() {
@@ -136,10 +131,17 @@ export default class Level1 extends Phaser.Scene {
     this.queueManager = new QueueManager(
       this.pathManager,
       this.animationExecutor,
+      this.levelHelper,
     );
     this.commandManager = new CommandManager(
       this,
       this.pathManager,
+      this.animationExecutor,
+      this.queueManager,
+    );
+
+    this.levelHelper = new LevelHelper(
+      this.setupLevelCandies,
       this.animationExecutor,
       this.queueManager,
     );

@@ -2,6 +2,12 @@
 // Utility class to abstract common level setup and UI logic for C4C SortingGame levels
 
 export default class LevelHelper {
+  constructor(setupLevelCandies, animationExecutor, queueManager) {
+    this.animationExecutor = animationExecutor;
+    this.queueManager = queueManager;
+    this.setupLevelCandies = setupLevelCandies;
+  }
+
   static initializeEditorWindow(scene, initialText = "") {
     C4C.Editor.Window.init(scene);
     C4C.Editor.Window.open();
@@ -92,16 +98,12 @@ export default class LevelHelper {
     }
     resetBtn.addEventListener("click", () => {
       console.log(`[${scene.currentLevel}] Reset Level button clicked.`);
-      setupLevelCandies();
-      animationExecutor.reset();
-      if (queueManager && typeof queueManager.reset === "function") {
-        queueManager.reset();
-      }
+      resetLevel();
     });
   }
 
-  static resetLevel(scene, setupLevelCandies, animationExecutor, queueManager) {
-    setupLevelCandies();
+  resetLevel(scene, setupLevelCandies, animationExecutor, queueManager) {
+    setupLevelCandies;
     animationExecutor.reset();
     if (queueManager && typeof queueManager.reset === "function") {
       queueManager.reset();
