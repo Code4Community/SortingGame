@@ -84,6 +84,12 @@ export default class LevelHelper {
       if (queueManager && typeof queueManager.reset === "function") {
         queueManager.reset();
       }
+      if (queueManager && typeof queueManager.setOnSuccessfulDump === "function") {
+        queueManager.setOnSuccessfulDump(() => {
+          C4C.Interpreter.run(programText);
+          queueManager.startExecution();
+        });
+      }
       C4C.Interpreter.run(programText);
       if (queueManager && typeof queueManager.startExecution === "function") {
         queueManager.startExecution();

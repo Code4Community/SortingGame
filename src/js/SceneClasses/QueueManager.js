@@ -5,6 +5,7 @@ export default class QueueManager {
     this.queue = [];
     // plannedPosition represents the logical position after queued-but-not-yet-animated moves
     this.plannedPosition = this.pathManager.getCurrentPosition();
+    this.onSuccessfulDump = null;
     console.log(
       "[QueueManager] Initialized. Planned position:",
       this.plannedPosition,
@@ -16,9 +17,14 @@ export default class QueueManager {
       this._onDumpComplete(result);
   }
 
+  setOnSuccessfulDump(fn) {
+    this.onSuccessfulDump = fn;
+  }
+
   reset() {
     this.queue = [];
     this.plannedPosition = this.pathManager.getCurrentPosition();
+    this.onSuccessfulDump = null;
     console.log(
       "[QueueManager] Reset. Planned position:",
       this.plannedPosition,
@@ -157,6 +163,11 @@ export default class QueueManager {
       result.success === true && result.hasMoreCandies === false;
     if (allCandiesSucessfullyDumped) {
       alert(`All Candies Sorted! Congrats! Move onto the next level`);
+      return;
+    }
+    if (result.success && result.hasMoreCandies && this.onSuccessfulDump) {
+      this.onSuccessfulDump();
+      return;
     }
     // continue execution, should probably check if empty queue here
     console.log("[QueueManager] Continuing execution after dump.");
