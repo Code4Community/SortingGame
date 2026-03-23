@@ -36,9 +36,10 @@ export default class QueueManager {
   }
 
   stopAllExecution() {
+    //this method is CRAP
     this.queue = [];
     if (this.animationExecutor) {
-      this.animationExecutor.stopAll();
+      //this.animationExecutor.stopAll();
     } else if (this.animationExecutor) {
       this.animationExecutor.reset();
     }

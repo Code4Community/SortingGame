@@ -20,7 +20,7 @@ export default class PathManager {
     const startVec = new window.Phaser.Math.Vector2(start.x, start.y);
     const endVec = new window.Phaser.Math.Vector2(end.x, end.y);
 
-    this.paths[name] = new window.Phaser.Curves.Line(startVec, endVec);
+    this.lines[name] = new window.Phaser.Curves.Line(startVec, endVec);
     console.log(
       `[PathManager] Created line: '${name}' from (${start.x}, ${start.y}) to (${end.x}, ${end.y})`,
     );
@@ -29,7 +29,7 @@ export default class PathManager {
 
   //Creates a new line that starts where another line ends, where "end" is the final destination point
   addLineFrom(fromLineName, newLineName, end) {
-    const fromLine = this.paths[fromLineName];
+    const fromLine = this.lines[fromLineName];
     if (!fromLine) {
       console.error(
         `[PathManager] Cannot add line. Line '${fromLineName}' not found`,
@@ -303,6 +303,6 @@ export default class PathManager {
   }
 
   drawAll(graphics) {
-    Object.values(this.paths).forEach((line) => line.draw(graphics));
+    Object.values(this.lines).forEach((line) => line.draw(graphics));
   }
 }
