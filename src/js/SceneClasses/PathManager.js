@@ -124,7 +124,7 @@ export default class PathManager {
       return true;
     } else {
       this.currentCandy = null;
-      console.log(`[PathManager] All candies completed! Queue is empty.`); // MODIFIED
+      console.log(`[PathManager] All candies completed! Queue is empty.`);
       return false;
     }
   }
@@ -140,7 +140,7 @@ export default class PathManager {
   //Check if current candy is at its goal position
   checkCandyAtGoal() {
     if (!this.currentCandy) {
-      console.warn(`[PathManager] No current candy to check.`); // MODIFIED
+      console.warn(`[PathManager] No current candy to check.`);
       return false;
     }
 
@@ -169,7 +169,7 @@ export default class PathManager {
 
   dumpCandy() {
     if (!this.currentCandy) {
-      console.warn(`[PathManager] Dump failed: No current candy to dump.`); // MODIFIED
+      console.warn(`[PathManager] Dump failed: No current candy to dump.`);
       return { success: false, hasMoreCandies: this.candyQueue.length > 0 }; // Return consistent structure
     }
 
@@ -223,27 +223,34 @@ export default class PathManager {
     const linesList = Object.values(this.lines);
 
     const isOnPath = linesList.some((curve) => {
-      // 1. Create a Geometric Line from the Curve's start (p0) and end (p1)
       const geomLine = new window.Phaser.Geom.Line(
         curve.p0.x,
         curve.p0.y,
         curve.p1.x,
         curve.p1.y,
       );
-
-      // 2. Use Phaser.Geom.Line.GetNearestPoint (static method)
-      const closestPoint = window.Phaser.Geom.Line.GetNearestPoint(
-        geomLine,
+      // Find the projection factor t for the segment
+      const dx = geomLine.x2 - geomLine.x1;
+      const dy = geomLine.y2 - geomLine.y1;
+      const lengthSq = dx * dx + dy * dy;
+      let t = 0;
+      if (lengthSq !== 0) {
+        t =
+          ((candyPoint.x - geomLine.x1) * dx +
+            (candyPoint.y - geomLine.y1) * dy) /
+          lengthSq;
+      }
+      // Clamp t to [0,1] to stay within the segment
+      t = Math.max(0, Math.min(1, t));
+      // Compute the clamped closest point
+      const clampedX = geomLine.x1 + t * dx;
+      const clampedY = geomLine.y1 + t * dy;
+      const distanceToSegment = window.Phaser.Math.Distance.BetweenPoints(
         candyPoint,
+        { x: clampedX, y: clampedY },
       );
-
-      // 3. Measure distance
-      const distanceToLine = window.Phaser.Math.Distance.BetweenPoints(
-        candyPoint,
-        closestPoint,
-      );
-
-      return distanceToLine <= LINE_PROXIMITY_TOLERANCE;
+      // Only consider the point on the path if the closest point is within the segment
+      return distanceToSegment <= LINE_PROXIMITY_TOLERANCE;
     });
 
     if (!isOnPath) {
@@ -262,10 +269,12 @@ export default class PathManager {
     );
   }
 
-  /* Getters and Setters */
-  //Get current position
   getCurrentPosition() {
     return { ...this.currentPosition };
+  }
+
+  getStartingPosition() {
+    return { ...this.startingPosition };
   }
 
   //Set position

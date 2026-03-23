@@ -28,11 +28,21 @@ export default class QueueManager {
 
   reset() {
     this.queue = [];
-    this.plannedPosition = this.pathManager.getCurrentPosition();
+    this.plannedPosition = this.pathManager.getStartingPosition();
     console.log(
       "[QueueManager] Reset. Planned position:",
       this.plannedPosition,
     );
+  }
+
+  stopAllExecution() {
+    this.queue = [];
+    if (this.animationExecutor) {
+      this.animationExecutor.stopAll();
+    } else if (this.animationExecutor) {
+      this.animationExecutor.reset();
+    }
+    console.log("[QueueManager] All execution stopped. Queue cleared.");
   }
 
   // schedule an incremental command by name (does not mutate PathManager)
@@ -51,7 +61,7 @@ export default class QueueManager {
     });
     console.log(
       `[QueueManager] Scheduled movement '${commandName}' -> (${newPos.x}, ${newPos.y}). New Queue size: ${this.queue.length}`,
-    ); // MODIFIED/ADDED
+    );
   }
 
   scheduleDumpCandy() {
@@ -74,6 +84,21 @@ export default class QueueManager {
     console.log(
       `[QueueManager] Scheduled custom action. New Queue size: ${this.queue.length}`,
     );
+  }
+
+  enqueueReset() {
+    if (
+      this.animationExecutor &&
+      typeof this.animationExecutor.reset === "function"
+    ) {
+      this.animationExecutor.reset();
+    }
+    if (this.queueManager && typeof this.queueManager.reset === "function") {
+      this.queueManager.reset();
+    }
+    setTimeout(function () {
+      this.setupLevelCandies;
+    }, 2000); // 2000 milliseconds
   }
 
   // Start executing the queued commands (called after interpreter finishes queuing)
@@ -119,9 +144,10 @@ export default class QueueManager {
         let isCandyOffPath =
           !this.pathManager.checkCandyPositionOnLines(finalPosition);
         if (isCandyOffPath) {
-          this.levelHelper.resetLevel(); //ERROR HERE... levelHelper not initialized
+          console.log("[QueueManager] Candy Off Path");
+          this.stopAllExecution();
+          return;
         }
-
         break;
       case "dumpCandy":
         console.log("[QueueManager] Executing dumpCandy");
