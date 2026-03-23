@@ -29,7 +29,8 @@ export default class LevelHelper {
     // Extend or override in level if needed
   }
 
-  static onCandyFailed(scene, candy, position) {
+  //this isn't static because I wanted it to recognize resetLevel()
+  onCandyFailed(scene, candy, position) {
     console.log(
       `[${scene.currentLevel}] Candy ${candy.type} failed! Position:`,
       position,

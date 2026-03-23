@@ -4,9 +4,9 @@ import CommandManager from "./SceneClasses/CommandManager.js";
 import QueueManager from "./SceneClasses/QueueManager.js";
 import LevelHelper from "./SceneClasses/LevelHelper.js";
 
-export default class Level1 extends Phaser.Scene {
+export default class Level2 extends Phaser.Scene {
   constructor() {
-    super({ key: "Level1" });
+    super({ key: 'Level2' });
   }
 
   graphics;
@@ -14,7 +14,7 @@ export default class Level1 extends Phaser.Scene {
   animationExecutor;
   commandManager;
   levelHelper;
-  currentLevel = "Level1";
+  currentLevel = "Level2";
 
   preload() {
     this.load.image("background", "assets/background.png");
@@ -22,11 +22,11 @@ export default class Level1 extends Phaser.Scene {
   }
 
   initializeEditorWindow() {
-    LevelHelper.initializeEditorWindow(
-      this,
-      "moveDown\nmoveLeft\nmoveLeft\ndumpCandy\nmoveDown\nmoveRight\nmoveRight\ndumpCandy\nmoveDown\nmoveDown\ndumpCandy",
-    );
-  }
+      LevelHelper.initializeEditorWindow(
+        this,
+        "moveDown",
+      );
+    }
 
   initializeBackgroundGraphics() {
     this.add.image(400, 300, "background");
@@ -39,8 +39,7 @@ export default class Level1 extends Phaser.Scene {
   createLinesForConveyerBelt() {
     this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
     this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
-    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
-    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
+    this.pathManager.addLineFrom("left", "downleft", { x: 200, y: 500});
     this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
     this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
   }
@@ -65,7 +64,7 @@ export default class Level1 extends Phaser.Scene {
 
     //Define goal positions for each candy type. Again, adjust to using the Candy class
     const goalPositions = {
-      "blue-circle": { x: 200, y: 400 }, // Left bin
+      "blue-circle": { x: 200, y: 500 }, // Left bin
       "red-square": { x: 600, y: 400 }, // Right bin
       "green-triangle": { x: 400, y: 500 }, // Bottom bin
     };
@@ -109,15 +108,21 @@ export default class Level1 extends Phaser.Scene {
   }
 
   initializeRunCodeButton() {
-    this.levelHelper.initializeRunCodeButton(this);
+    LevelHelper.initializeRunCodeButton(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
   }
   // Add a button to reset the level completely
   initializeResetButton() {
-    this.levelHelper.initializeResetButton(this);
-  }
-
-  resetLevel() {
-    this.levelHelper.resetLevel();
+    LevelHelper.initializeResetButton(
+      this,
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
   }
 
   create() {
@@ -128,7 +133,6 @@ export default class Level1 extends Phaser.Scene {
     this.queueManager = new QueueManager(
       this.pathManager,
       this.animationExecutor,
-      null, // levelHelper will be set later
     );
 
     this.commandManager = new CommandManager(
@@ -137,15 +141,14 @@ export default class Level1 extends Phaser.Scene {
       this.animationExecutor,
       this.queueManager,
     );
-    this.levelHelper = new LevelHelper(
-      this.setupLevelCandies,
-      this.animationExecutor,
-      this.queueManager,
-    );
 
-    // Inject dependency
-    this.queueManager.levelHelper = this.levelHelper;
-    console.log(this.levelHelper);
+    this.levelHelper = new LevelHelper({
+      scene: this.scene,
+      setupLevelCandies: this.setupLevelCandies,
+      pathManager: this.pathManager,
+      queueManager: this.queueManager,
+      animationExecutor: this.animationExecutor,
+    });
 
     //Set up the level
     this.createLinesForConveyerBelt();
