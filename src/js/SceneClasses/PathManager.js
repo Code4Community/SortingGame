@@ -2,7 +2,6 @@ export default class PathManager {
   constructor(scene) {
     this.scene = scene;
     this.lines = new Map(); //Stores phaser line objects with the count of times referenced
-    this.paths = new Map(); //Stores our paths with a count value attached to it
     this.currentPosition = { x: 400, y: 300 }; // Starting position
     this.startingPosition = { x: 400, y: 300 }; //Remember the starting position, TODO: Grab the one from Animation Executor!
     this.incrementalCommands = new Map(); //Store increment functions
