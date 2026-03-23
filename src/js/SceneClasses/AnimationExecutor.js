@@ -56,7 +56,7 @@ export default class AnimationExecutor {
     if (this.isAnimating) {
       console.log(
         "[AnimationExecutor] Animation in progress, skipping execution attempt.",
-      ); // MODIFIED
+      );
       return;
     }
 
@@ -87,7 +87,7 @@ export default class AnimationExecutor {
       default:
         console.warn(
           `[AnimationExecutor] Unknown command type: ${command.type}. Skipping.`,
-        ); // MODIFIED
+        );
     }
   }
 
@@ -134,23 +134,25 @@ export default class AnimationExecutor {
         this.followerPosition.y = temp.y;
       },
       onComplete: () => {
-        this.followerPosition.x = end.x;
-        this.followerPosition.y = end.y;
-        this.isAnimating = false;
-        console.log(
-          `[AnimationExecutor] Animation complete. Final position set to (${end.x}, ${end.y}).`,
-        );
-        // notify the QueueManager (if set) instead of auto-driving next
-        if (typeof this.onMovementComplete === "function") {
+        if (this.isAnimating) {
+          this.followerPosition.x = end.x;
+          this.followerPosition.y = end.y;
+          this.isAnimating = false;
           console.log(
-            "[AnimationExecutor] Calling onMovementComplete callback.",
+            `[AnimationExecutor] Animation complete. Final position set to (${end.x}, ${end.y}).`,
           );
-          this.onMovementComplete({ x: end.x, y: end.y });
-        } else {
-          console.warn(
-            "[AnimationExecutor] onMovementComplete callback missing. Auto-executing next command.",
-          );
-          this.executeNextCommand();
+          // notify the QueueManager (if set) instead of auto-driving next
+          if (typeof this.onMovementComplete === "function") {
+            console.log(
+              "[AnimationExecutor] Calling onMovementComplete callback.",
+            );
+            this.onMovementComplete({ x: end.x, y: end.y });
+          } else {
+            console.warn(
+              "[AnimationExecutor] onMovementComplete callback missing. Auto-executing next command.",
+            );
+            this.executeNextCommand();
+          }
         }
       },
     });
@@ -164,9 +166,9 @@ export default class AnimationExecutor {
       console.log(
         "[AnimationExecutor] Candy successfully dumped! Result:",
         result,
-      ); // MODIFIED
+      );
     } else {
-      console.log("[AnimationExecutor] Candy dump failed! Result:", result); // MODIFIED
+      console.log("[AnimationExecutor] Candy dump failed! Result:", result);
     }
 
     // notify queue manager instead of executing next here
@@ -192,9 +194,10 @@ export default class AnimationExecutor {
   }
 
   reset() {
+    console.log("BRUH!");
     this.commandQueue = [];
     this.isAnimating = false;
-    const pos = this.pathManager.getCurrentPosition();
+    const pos = this.pathManager.getStartingPosition();
     this.followerPosition = { x: pos.x, y: pos.y };
     console.log(
       `[AnimationExecutor] Reset. Follower position synced to PathManager at (${pos.x}, ${pos.y}). Queue cleared.`,
