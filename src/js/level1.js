@@ -7,7 +7,7 @@ import Candy, { Colors, Shapes, Patterns } from "./candy.js";
 
 export default class Level1 extends Phaser.Scene {
   constructor() {
-    super({ key: 'Level1' });
+    super({ key: "Level1" });
   }
 
   graphics;
@@ -40,6 +40,8 @@ export default class Level1 extends Phaser.Scene {
   createLinesForConveyerBelt() {
     this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
     this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
     this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
     this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
   }
@@ -111,21 +113,15 @@ export default class Level1 extends Phaser.Scene {
   }
 
   initializeRunCodeButton() {
-    LevelHelper.initializeRunCodeButton(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.initializeRunCodeButton(this);
   }
   // Add a button to reset the level completely
   initializeResetButton() {
-    LevelHelper.initializeResetButton(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.initializeResetButton(this);
+  }
+
+  resetLevel() {
+    this.levelHelper.resetLevel();
   }
 
   create() {
@@ -136,6 +132,7 @@ export default class Level1 extends Phaser.Scene {
     this.queueManager = new QueueManager(
       this.pathManager,
       this.animationExecutor,
+      null, // levelHelper will be set later
     );
 
     this.commandManager = new CommandManager(
@@ -144,14 +141,15 @@ export default class Level1 extends Phaser.Scene {
       this.animationExecutor,
       this.queueManager,
     );
+    this.levelHelper = new LevelHelper(
+      this.setupLevelCandies,
+      this.animationExecutor,
+      this.queueManager,
+    );
 
-    this.levelHelper = new LevelHelper({
-      scene: this.scene,
-      setupLevelCandies: this.setupLevelCandies,
-      pathManager: this.pathManager,
-      queueManager: this.queueManager,
-      animationExecutor: this.animationExecutor,
-    });
+    // Inject dependency
+    this.queueManager.levelHelper = this.levelHelper;
+    console.log(this.levelHelper);
 
     //Set up the level
     this.createLinesForConveyerBelt();
