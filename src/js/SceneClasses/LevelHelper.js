@@ -67,24 +67,29 @@ export default class LevelHelper {
       console.log(
         `[${scene.currentLevel}] Run button clicked. Program text: ${programText}`,
       );
-      this.setupLevelCandies;
-      this.animationExecutor.reset();
-      if (this.queueManager && typeof this.queueManager.reset === "function") {
+
+      // Fully reset the level state before running new code
+      if (this.animationExecutor) {
+        this.animationExecutor.reset();
+      }
+      if (this.queueManager) {
         this.queueManager.reset();
       }
-      if (this.queueManager && typeof this.queueManager.setOnSuccessfulDump === "function") {
-        this.queueManager.setOnSuccessfulDump(() => {
-          C4C.Interpreter.run(programText);
-          this.queueManager.startExecution();
-        });
+      if (scene.pathManager) {
+        scene.pathManager.resetPosition();
       }
+      if (typeof scene.setupLevelCandies === "function") {
+        scene.setupLevelCandies();
+      }
+
       C4C.Interpreter.run(programText);
+
       if (
         this.queueManager &&
         typeof this.queueManager.startExecution === "function"
       ) {
         this.queueManager.startExecution();
-      } else {
+      } else if (this.animationExecutor) {
         this.animationExecutor.executeNextCommand();
       }
     });
