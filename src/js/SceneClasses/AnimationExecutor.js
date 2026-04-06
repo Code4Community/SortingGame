@@ -17,6 +17,8 @@ export default class AnimationExecutor {
   }
 
   //Queue movement to a specific position
+  //look into tweenManager.chain method
+  //https://docs.phaser.io/phaser/concepts/tweens
   queueMovementToPosition(targetPosition) {
     this.commandQueue.push({
       type: "movement",
@@ -123,7 +125,11 @@ export default class AnimationExecutor {
 
     const t = { value: 0 };
     const temp = new window.Phaser.Math.Vector2();
-    this.scene.tweens.add({
+    // Store reference to the current tween so we can stop it later
+    if (this.currentTween && this.currentTween.isPlaying()) {
+      this.currentTween.stop();
+    }
+    this.currentTween = this.scene.tweens.add({
       targets: t,
       value: 1,
       duration,
@@ -138,6 +144,7 @@ export default class AnimationExecutor {
           this.followerPosition.x = end.x;
           this.followerPosition.y = end.y;
           this.isAnimating = false;
+          this.currentTween = null;
           console.log(
             `[AnimationExecutor] Animation complete. Final position set to (${end.x}, ${end.y}).`,
           );
@@ -193,14 +200,29 @@ export default class AnimationExecutor {
     graphics.fillCircle(this.followerPosition.x, this.followerPosition.y, 20);
   }
 
-  reset() {
-    console.log("BRUH!");
+  stopAll() {
+    // Stop and remove the current tween if it exists
+    if (this.currentTween) {
+      this.currentTween.remove();
+      this.currentTween = null;
+      console.log("[AnimationExecutor] Current tween removed.");
+    }
+    // Also kill all tweens in the scene for safety
+    if (this.scene && this.scene.tweens) {
+      this.scene.tweens.killAll();
+      console.log("[AnimationExecutor] All tweens killed");
+    }
     this.commandQueue = [];
     this.isAnimating = false;
     const pos = this.pathManager.getStartingPosition();
     this.followerPosition = { x: pos.x, y: pos.y };
+  }
+
+  reset() {
+    console.log("[AnimationExecutor] Resetting.");
+    this.stopAll();
     console.log(
-      `[AnimationExecutor] Reset. Follower position synced to PathManager at (${pos.x}, ${pos.y}). Queue cleared.`,
+      `[AnimationExecutor] Reset complete. Follower position synced to PathManager at (${this.followerPosition.x}, ${this.followerPosition.y}). Queue cleared.`,
     );
   }
 }

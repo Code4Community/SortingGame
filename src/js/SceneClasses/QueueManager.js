@@ -36,13 +36,8 @@ export default class QueueManager {
   }
 
   stopAllExecution() {
-    //this method is CRAP
     this.queue = [];
-    if (this.animationExecutor) {
-      //this.animationExecutor.stopAll();
-    } else if (this.animationExecutor) {
-      this.animationExecutor.reset();
-    }
+    this.animationExecutor.reset();
     console.log("[QueueManager] All execution stopped. Queue cleared.");
   }
 
