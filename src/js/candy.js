@@ -1,11 +1,11 @@
 export default class Candy {
-    constructor(color, shape, pattern, imagePath) {
+    constructor(color, shape, pattern, path) {
         this.color = color;
         this.shape = shape;
         this.pattern = pattern;
-        console.log("ImagePath: " + imagePath);
-        this.imagePath = imagePath;
-        console.log("ImagePath: " + imagePath);
+        console.log("ImagePath: " + path);
+        this.path = path;
+        console.log("ImagePath: " + this.path);
     }
 }
 

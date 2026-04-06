@@ -126,7 +126,7 @@ export default class PathManager {
       this.currentCandy = this.candyQueue.shift();
       this.resetPosition();
       console.log(
-        `[PathManager] Starting next candy: ${this.currentCandy.type}. Remaining in queue: ${this.candyQueue.length}`,
+        `[PathManager] Starting next candy: ${this.currentCandy.path}. Remaining in queue: ${this.candyQueue.length}`,
       ); // MODIFIED/ADDED
       return true;
     } else {
@@ -151,12 +151,12 @@ export default class PathManager {
       return false;
     }
 
-    const goalPosition = this.goalPositions.get(this.currentCandy.type);
+    const goalPosition = this.goalPositions.get(this.currentCandy.path);
     // console.log(`[Path Manager] Goal Position for Candy ${this.currentCandy}`); // Original log removed/consolidated
 
     if (!goalPosition) {
       console.warn(
-        `[PathManager] No goal position defined for candy type: ${this.currentCandy.type}`,
+        `[PathManager] No goal position defined for candy type: ${this.currentCandy.path}`,
       );
       return false;
     }
@@ -168,7 +168,7 @@ export default class PathManager {
     const isAtGoal = distanceX <= tolerance && distanceY <= tolerance;
 
     console.log(
-      `[PathManager] Checking goal for ${this.currentCandy.type} (Tolerance: ${tolerance}). Current: (${this.currentPosition.x}, ${this.currentPosition.y}) | Goal: (${goalPosition.x}, ${goalPosition.y}). Match: ${isAtGoal}`,
+      `[PathManager] Checking goal for ${this.currentCandy.path} (Tolerance: ${tolerance}). Current: (${this.currentPosition.x}, ${this.currentPosition.y}) | Goal: (${goalPosition.x}, ${goalPosition.y}). Match: ${isAtGoal}`,
     ); // MODIFIED/ADDED
 
     return isAtGoal;
@@ -181,13 +181,13 @@ export default class PathManager {
     }
 
     console.log(
-      `[PathManager] Attempting to dump candy: ${this.currentCandy.type}`,
+      `[PathManager] Attempting to dump candy: ${this.currentCandy.path}`,
     );
     const isAtGoal = this.checkCandyAtGoal();
 
     if (isAtGoal) {
       console.log(
-        `[PathManager] Dump SUCCESS! Candy ${this.currentCandy.type} successfully delivered.`,
+        `[PathManager] Dump SUCCESS! Candy ${this.currentCandy.path} successfully delivered.`,
       );
 
       //Callback for successful delivery
@@ -201,7 +201,7 @@ export default class PathManager {
       return { success: true, hasMoreCandies };
     } else {
       console.log(
-        `[PathManager] Dump FAILED! Candy ${this.currentCandy.type} is not at goal position.`,
+        `[PathManager] Dump FAILED! Candy ${this.currentCandy.path} is not at goal position.`,
       );
       //Callback for failed delivery
       if (this.onCandyFailed) {
