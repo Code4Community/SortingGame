@@ -108,21 +108,11 @@ export default class Level2 extends Phaser.Scene {
   }
 
   initializeRunCodeButton() {
-    LevelHelper.initializeRunCodeButton(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.initializeRunCodeButton(this);
   }
   // Add a button to reset the level completely
   initializeResetButton() {
-    LevelHelper.initializeResetButton(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.initializeResetButton(this);
   }
 
   create() {
@@ -142,13 +132,11 @@ export default class Level2 extends Phaser.Scene {
       this.queueManager,
     );
 
-    this.levelHelper = new LevelHelper({
-      scene: this.scene,
-      setupLevelCandies: this.setupLevelCandies,
-      pathManager: this.pathManager,
-      queueManager: this.queueManager,
-      animationExecutor: this.animationExecutor,
-    });
+    this.levelHelper = new LevelHelper(
+      this.setupLevelCandies.bind(this),
+      this.animationExecutor,
+      this.queueManager,
+    );
 
     //Set up the level
     this.createLinesForConveyerBelt();
