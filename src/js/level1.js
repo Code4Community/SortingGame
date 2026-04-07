@@ -117,7 +117,7 @@ export default class Level1 extends Phaser.Scene {
   }
 
   resetLevel() {
-    this.levelHelper.resetLevel(this, this.setupLevelCandies.bind(this));
+    this.levelHelper.resetLevel();
   }
 
   create() {
