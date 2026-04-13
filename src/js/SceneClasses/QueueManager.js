@@ -1,10 +1,21 @@
+import LevelHelper from "./LevelHelper.js";
 export default class QueueManager {
-  constructor(pathManager, animationExecutor) {
+  constructor(
+    pathManager,
+    animationExecutor,
+    scene = null,
+    setupLevelCandies = null,
+    levelHelper,
+  ) {
     this.pathManager = pathManager;
     this.animationExecutor = animationExecutor;
+    this.scene = scene;
+    this.setupLevelCandies = setupLevelCandies;
+    this.levelHelper = levelHelper;
     this.queue = [];
     // plannedPosition represents the logical position after queued-but-not-yet-animated moves
     this.plannedPosition = this.pathManager.getCurrentPosition();
+    this.onSuccessfulDump = null;
     console.log(
       "[QueueManager] Initialized. Planned position:",
       this.plannedPosition,
@@ -16,13 +27,24 @@ export default class QueueManager {
       this._onDumpComplete(result);
   }
 
+  setOnSuccessfulDump(fn) {
+    this.onSuccessfulDump = fn;
+  }
+
   reset() {
     this.queue = [];
     this.plannedPosition = this.pathManager.getCurrentPosition();
+    this.onSuccessfulDump = null;
     console.log(
       "[QueueManager] Reset. Planned position:",
       this.plannedPosition,
     );
+  }
+
+  stopAllExecution() {
+    this.queue = [];
+    this.animationExecutor.reset();
+    console.log("[QueueManager] All execution stopped. Queue cleared.");
   }
 
   // schedule an incremental command by name (does not mutate PathManager)
@@ -41,7 +63,7 @@ export default class QueueManager {
     });
     console.log(
       `[QueueManager] Scheduled movement '${commandName}' -> (${newPos.x}, ${newPos.y}). New Queue size: ${this.queue.length}`,
-    ); // MODIFIED/ADDED
+    );
   }
 
   scheduleDumpCandy() {
@@ -64,6 +86,21 @@ export default class QueueManager {
     console.log(
       `[QueueManager] Scheduled custom action. New Queue size: ${this.queue.length}`,
     );
+  }
+
+  enqueueReset() {
+    if (
+      this.animationExecutor &&
+      typeof this.animationExecutor.reset === "function"
+    ) {
+      this.animationExecutor.reset();
+    }
+    if (this.queueManager && typeof this.queueManager.reset === "function") {
+      this.queueManager.reset();
+    }
+    setTimeout(function () {
+      this.setupLevelCandies;
+    }, 2000); // 2000 milliseconds
   }
 
   // Start executing the queued commands (called after interpreter finishes queuing)
@@ -99,12 +136,20 @@ export default class QueueManager {
           this.animationExecutor.followerPosition = { x: pos.x, y: pos.y };
         }
         // queue movement on animationExecutor (copy)
-        this.animationExecutor.queueMovementToPosition({
+        let finalPosition = {
           x: cmd.targetPosition.x,
           y: cmd.targetPosition.y,
-        });
+        };
+        this.animationExecutor.queueMovementToPosition(finalPosition);
         // trigger executor to start (it will call back to us on complete)
         this.animationExecutor.executeNextCommand();
+        let isCandyOffPath =
+          !this.pathManager.checkCandyPositionOnLines(finalPosition);
+        if (isCandyOffPath) {
+          console.log("[QueueManager] Candy Off Path");
+          this.stopAllExecution();
+          return;
+        }
         break;
       case "dumpCandy":
         console.log("[QueueManager] Executing dumpCandy");
@@ -157,6 +202,11 @@ export default class QueueManager {
       result.success === true && result.hasMoreCandies === false;
     if (allCandiesSucessfullyDumped) {
       alert(`All Candies Sorted! Congrats! Move onto the next level`);
+      return;
+    }
+    if (result.success && result.hasMoreCandies && this.onSuccessfulDump) {
+      this.onSuccessfulDump();
+      return;
     }
     // continue execution, should probably check if empty queue here
     console.log("[QueueManager] Continuing execution after dump.");
