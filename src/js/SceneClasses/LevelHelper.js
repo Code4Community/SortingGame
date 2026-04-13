@@ -82,6 +82,13 @@ export default class LevelHelper {
         scene.setupLevelCandies();
       }
 
+      if (this.queueManager && typeof this.queueManager.setOnSuccessfulDump === "function") {
+        this.queueManager.setOnSuccessfulDump(() => {
+          C4C.Interpreter.run(programText);
+          this.queueManager.startExecution();
+        });
+      }
+
       C4C.Interpreter.run(programText);
 
       if (
