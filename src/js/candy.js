@@ -3,9 +3,11 @@ export default class Candy {
     this.color = color;
     this.shape = shape;
     this.pattern = pattern;
-    console.log("ImagePath: " + imagePath);
     this.imagePath = imagePath;
-    console.log("ImagePath: " + imagePath);
+  }
+
+  get type() {
+    return `${this.color}-${this.shape}`;
   }
 }
 

@@ -3,6 +3,7 @@ import AnimationExecutor from "./SceneClasses/AnimationExecutor.js";
 import CommandManager from "./SceneClasses/CommandManager.js";
 import QueueManager from "./SceneClasses/QueueManager.js";
 import LevelHelper from "./SceneClasses/LevelHelper.js";
+import Candy, { Colors, Shapes, Patterns } from "./candy.js";
 
 export default class Level1 extends Phaser.Scene {
   constructor() {
@@ -55,15 +56,12 @@ export default class Level1 extends Phaser.Scene {
   }
 
   setupLevelCandies() {
-    //Define the candies for this level
-    //TODO: Adjust this to use the Candy class!
     const candies = [
-      { type: "blue-circle", id: 1 },
-      { type: "red-square", id: 2 },
-      { type: "green-triangle", id: 3 },
+      new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
+      new Candy(Colors.RED, Shapes.SQUARE, Patterns.PLAIN),
+      new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.PLAIN),
     ];
 
-    //Define goal positions for each candy type. Again, adjust to using the Candy class
     const goalPositions = {
       "blue-circle": { x: 200, y: 400 }, // Left bin
       "red-square": { x: 600, y: 400 }, // Right bin
@@ -97,6 +95,12 @@ export default class Level1 extends Phaser.Scene {
             "This is an example custom command, should run immediately",
           );
         },
+        isBlue: () => this.pathManager.getCurrentCandy()?.color === Colors.BLUE,
+        isRed: () => this.pathManager.getCurrentCandy()?.color === Colors.RED,
+        isGreen: () => this.pathManager.getCurrentCandy()?.color === Colors.GREEN,
+        isCircle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.CIRCLE,
+        isSquare: () => this.pathManager.getCurrentCandy()?.shape == Shapes.SQUARE,
+        isTriangle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.TRIANGLE,
       },
       queued: {
         queuedCommand: () => {
