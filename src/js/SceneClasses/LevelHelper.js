@@ -2,6 +2,12 @@
 // Utility class to abstract common level setup and UI logic for C4C SortingGame levels
 
 export default class LevelHelper {
+  constructor(setupLevelCandies, animationExecutor, queueManager) {
+    this.animationExecutor = animationExecutor;
+    this.queueManager = queueManager;
+    this.setupLevelCandies = setupLevelCandies;
+  }
+
   static initializeEditorWindow(scene, initialText = "") {
     C4C.Editor.Window.init(scene);
     C4C.Editor.Window.open();
@@ -23,12 +29,16 @@ export default class LevelHelper {
     // Extend or override in level if needed
   }
 
-  static onCandyFailed(scene, candy, position) {
+  //this isn't static because I wanted it to recognize resetLevel()
+  onCandyFailed(scene, candy, position) {
     console.log(
       `[${scene.currentLevel}] Candy ${candy.type} failed! Position:`,
       position,
     );
     alert(`Candy ${candy.type} is not in the correct position! Try again.`);
+    if (scene.queueManager) {
+      scene.queueManager.stopAllExecution();
+    }
     // Extend or override in level if needed
   }
 
@@ -51,37 +61,41 @@ export default class LevelHelper {
     }
   }
 
-  static initializeRunCodeButton(
-    scene,
-    setupLevelCandies,
-    animationExecutor,
-    queueManager,
-  ) {
+  initializeRunCodeButton(scene) {
     document.getElementById("enableCommands").addEventListener("click", () => {
       let programText = C4C.Editor.getText();
       console.log(
         `[${scene.currentLevel}] Run button clicked. Program text: ${programText}`,
       );
-      setupLevelCandies();
-      animationExecutor.reset();
-      if (queueManager && typeof queueManager.reset === "function") {
-        queueManager.reset();
+
+      // Fully reset the level state before running new code
+      if (this.animationExecutor) {
+        this.animationExecutor.reset();
       }
+      if (this.queueManager) {
+        this.queueManager.reset();
+      }
+      if (scene.pathManager) {
+        scene.pathManager.resetPosition();
+      }
+      if (typeof scene.setupLevelCandies === "function") {
+        scene.setupLevelCandies();
+      }
+
       C4C.Interpreter.run(programText);
-      if (queueManager && typeof queueManager.startExecution === "function") {
-        queueManager.startExecution();
-      } else {
-        animationExecutor.executeNextCommand();
+
+      if (
+        this.queueManager &&
+        typeof this.queueManager.startExecution === "function"
+      ) {
+        this.queueManager.startExecution();
+      } else if (this.animationExecutor) {
+        this.animationExecutor.executeNextCommand();
       }
     });
   }
 
-  static initializeResetButton(
-    scene,
-    setupLevelCandies,
-    animationExecutor,
-    queueManager,
-  ) {
+  initializeResetButton(scene) {
     let resetBtn = document.getElementById("resetLevel");
     if (!resetBtn) {
       resetBtn = document.createElement("button");
@@ -92,19 +106,13 @@ export default class LevelHelper {
     }
     resetBtn.addEventListener("click", () => {
       console.log(`[${scene.currentLevel}] Reset Level button clicked.`);
-      setupLevelCandies();
-      animationExecutor.reset();
-      if (queueManager && typeof queueManager.reset === "function") {
-        queueManager.reset();
-      }
+      this.resetLevel();
     });
   }
 
-  static resetLevel(scene, setupLevelCandies, animationExecutor, queueManager) {
-    setupLevelCandies();
-    animationExecutor.reset();
-    if (queueManager && typeof queueManager.reset === "function") {
-      queueManager.reset();
-    }
+  resetLevel(scene, setupLevelCandies) {
+    this.queueManager.enqueueReset();
+    setupLevelCandies;
+    //this.queueManager.enqueueReset();
   }
 }

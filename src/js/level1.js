@@ -4,13 +4,21 @@ import CommandManager from "./SceneClasses/CommandManager.js";
 import QueueManager from "./SceneClasses/QueueManager.js";
 import LevelHelper from "./SceneClasses/LevelHelper.js";
 import Candy, { Colors, Shapes, Patterns } from "./candy.js";
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
 
 export default class Level1 extends Phaser.Scene {
+  constructor() {
+    super({ key: "Level1" });
+  }
+
   graphics;
   pathManager;
   animationExecutor;
   commandManager;
+  levelHelper;
   currentLevel = "Level1";
 
   // ---------------------------------------------------------
@@ -68,8 +76,15 @@ export default class Level1 extends Phaser.Scene {
   createLinesForConveyerBelt() {
     this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
     this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
+<<<<<<< HEAD
     this.pathManager.addLineFrom('center', 'right', { x: 600, y: 400 });
     this.pathManager.addLineFrom('center', 'leftDown', { x: 400, y: 500 });
+=======
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
+>>>>>>> main
   }
 
   createIncrementalCommands() {
@@ -123,6 +138,7 @@ export default class Level1 extends Phaser.Scene {
 
   setupLevelCandies() {
     const candies = [
+<<<<<<< HEAD
       new Candy(Colors.BLUE, Shapes.SQUARE, Patterns.DOTTED, 'tester'),
       new Candy(Colors.RED, Shapes.TRIANGLE, Patterns.DOTTED, 'tester2'),
       new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.DOTTED, 'tester3')
@@ -136,6 +152,13 @@ export default class Level1 extends Phaser.Scene {
     this.renderCandyPreview(candies);
     // ---------------------------------------------------------
 
+=======
+      new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
+      new Candy(Colors.RED, Shapes.SQUARE, Patterns.PLAIN),
+      new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.PLAIN),
+    ];
+
+>>>>>>> main
     const goalPositions = {
       'tester':  { x: 200, y: 400 },
       'tester2': { x: 600, y: 400 },
@@ -160,20 +183,24 @@ export default class Level1 extends Phaser.Scene {
   }
 
   onCandyFailed(candy, position) {
-    // ---------------------------------------------------------
-    // ADDED: Remove preview candy on failure
-    // ---------------------------------------------------------
     this.removeFirstPreviewCandy();
-    // ---------------------------------------------------------
-    LevelHelper.onCandyFailed(this, candy, position);
+    this.levelHelper.onCandyFailed(this, candy, position);
   }
 
   defineInterpreterCommands() {
     LevelHelper.defineInterpreterCommands(this.commandManager, {
       immediate: {
         sampleCommand: () => {
-          console.log("This is an example custom command, should run immediately");
+          console.log(
+            "This is an example custom command, should run immediately",
+          );
         },
+        isBlue: () => this.pathManager.getCurrentCandy()?.color === Colors.BLUE,
+        isRed: () => this.pathManager.getCurrentCandy()?.color === Colors.RED,
+        isGreen: () => this.pathManager.getCurrentCandy()?.color === Colors.GREEN,
+        isCircle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.CIRCLE,
+        isSquare: () => this.pathManager.getCurrentCandy()?.shape == Shapes.SQUARE,
+        isTriangle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.TRIANGLE,
       },
       queued: {
         queuedCommand: () => {
@@ -184,30 +211,15 @@ export default class Level1 extends Phaser.Scene {
   }
 
   initializeRunCodeButton() {
-    LevelHelper.initializeRunCodeButton(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.initializeRunCodeButton(this);
   }
 
   initializeResetButton() {
-    LevelHelper.initializeResetButton(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.initializeResetButton(this);
   }
 
   resetLevel() {
-    LevelHelper.resetLevel(
-      this,
-      this.setupLevelCandies.bind(this),
-      this.animationExecutor,
-      this.queueManager,
-    );
+    this.levelHelper.resetLevel();
   }
 
   create() {
@@ -217,6 +229,27 @@ export default class Level1 extends Phaser.Scene {
     this.animationExecutor = new AnimationExecutor(this, this.pathManager);
     this.queueManager = new QueueManager(this.pathManager, this.animationExecutor);
     this.commandManager = new CommandManager(this, this.pathManager, this.animationExecutor, this.queueManager);
+    this.queueManager = new QueueManager(
+      this.pathManager,
+      this.animationExecutor,
+      null, // levelHelper will be set later
+    );
+
+    this.commandManager = new CommandManager(
+      this,
+      this.pathManager,
+      this.animationExecutor,
+      this.queueManager,
+    );
+    this.levelHelper = new LevelHelper(
+      this.setupLevelCandies,
+      this.animationExecutor,
+      this.queueManager,
+    );
+
+    // Inject dependency
+    this.queueManager.levelHelper = this.levelHelper;
+    console.log(this.levelHelper);
 
     this.createLinesForConveyerBelt();
     this.createIncrementalCommands();
