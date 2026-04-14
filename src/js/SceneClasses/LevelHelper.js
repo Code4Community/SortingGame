@@ -72,14 +72,11 @@ export default class LevelHelper {
       if (this.animationExecutor) {
         this.animationExecutor.reset();
       }
-      if (this.queueManager) {
-        this.queueManager.reset();
-      }
-      if (scene.pathManager) {
-        scene.pathManager.resetPosition();
-      }
       if (typeof scene.setupLevelCandies === "function") {
         scene.setupLevelCandies();
+      }
+      if (this.queueManager) {
+        this.queueManager.reset();
       }
 
       if (this.queueManager && typeof this.queueManager.setOnSuccessfulDump === "function") {
