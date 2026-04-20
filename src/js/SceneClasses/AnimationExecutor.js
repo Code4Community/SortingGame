@@ -17,6 +17,8 @@ export default class AnimationExecutor {
   }
 
   //Queue movement to a specific position
+  //look into tweenManager.chain method
+  //https://docs.phaser.io/phaser/concepts/tweens
   queueMovementToPosition(targetPosition) {
     this.commandQueue.push({
       type: "movement",
@@ -56,7 +58,7 @@ export default class AnimationExecutor {
     if (this.isAnimating) {
       console.log(
         "[AnimationExecutor] Animation in progress, skipping execution attempt.",
-      ); // MODIFIED
+      );
       return;
     }
 
@@ -87,7 +89,7 @@ export default class AnimationExecutor {
       default:
         console.warn(
           `[AnimationExecutor] Unknown command type: ${command.type}. Skipping.`,
-        ); // MODIFIED
+        );
     }
   }
 
@@ -123,7 +125,11 @@ export default class AnimationExecutor {
 
     const t = { value: 0 };
     const temp = new window.Phaser.Math.Vector2();
-    this.scene.tweens.add({
+    // Store reference to the current tween so we can stop it later
+    if (this.currentTween && this.currentTween.isPlaying()) {
+      this.currentTween.stop();
+    }
+    this.currentTween = this.scene.tweens.add({
       targets: t,
       value: 1,
       duration,
@@ -134,23 +140,26 @@ export default class AnimationExecutor {
         this.followerPosition.y = temp.y;
       },
       onComplete: () => {
-        this.followerPosition.x = end.x;
-        this.followerPosition.y = end.y;
-        this.isAnimating = false;
-        console.log(
-          `[AnimationExecutor] Animation complete. Final position set to (${end.x}, ${end.y}).`,
-        );
-        // notify the QueueManager (if set) instead of auto-driving next
-        if (typeof this.onMovementComplete === "function") {
+        if (this.isAnimating) {
+          this.followerPosition.x = end.x;
+          this.followerPosition.y = end.y;
+          this.isAnimating = false;
+          this.currentTween = null;
           console.log(
-            "[AnimationExecutor] Calling onMovementComplete callback.",
+            `[AnimationExecutor] Animation complete. Final position set to (${end.x}, ${end.y}).`,
           );
-          this.onMovementComplete({ x: end.x, y: end.y });
-        } else {
-          console.warn(
-            "[AnimationExecutor] onMovementComplete callback missing. Auto-executing next command.",
-          );
-          this.executeNextCommand();
+          // notify the QueueManager (if set) instead of auto-driving next
+          if (typeof this.onMovementComplete === "function") {
+            console.log(
+              "[AnimationExecutor] Calling onMovementComplete callback.",
+            );
+            this.onMovementComplete({ x: end.x, y: end.y });
+          } else {
+            console.warn(
+              "[AnimationExecutor] onMovementComplete callback missing. Auto-executing next command.",
+            );
+            this.executeNextCommand();
+          }
         }
       },
     });
@@ -164,9 +173,9 @@ export default class AnimationExecutor {
       console.log(
         "[AnimationExecutor] Candy successfully dumped! Result:",
         result,
-      ); // MODIFIED
+      );
     } else {
-      console.log("[AnimationExecutor] Candy dump failed! Result:", result); // MODIFIED
+      console.log("[AnimationExecutor] Candy dump failed! Result:", result);
     }
 
     // notify queue manager instead of executing next here
@@ -182,18 +191,28 @@ export default class AnimationExecutor {
     if (this.follower) return;
 
     this.follower = this.scene.add.image(
-        this.followerPosition.x,
-        this.followerPosition.y,
-        candyType
+      this.followerPosition.x,
+      this.followerPosition.y,
+      candyType,
     );
 
     this.follower.setDisplaySize(64, 64); // normalize size
     console.log("CREATING FOLLOWER SPRITE");
+  }
 
-}
+  // drawFollower(graphics) {
+  //     const currentCandy = this.pathManager.getCurrentCandy();
+  //     const candyType = currentCandy ? currentCandy.type : "default";
 
+  //     let color = 0xff0000; // Default red
+  //     if (candyType.includes("blue")) color = 0x0000ff;
+  //     else if (candyType.includes("green")) color = 0x00ff00;
+  //     else if (candyType.includes("red")) color = 0xff0000;
 
-drawFollower(graphics) {
+  //     graphics.fillStyle(color);
+  //     graphics.fillCircle(this.followerPosition.x, this.followerPosition.y, 20);
+  //   }
+  drawFollower(graphics) {
     const currentCandy = this.pathManager.getCurrentCandy();
     if (!currentCandy) return;
 
@@ -201,46 +220,59 @@ drawFollower(graphics) {
 
     // Create follower sprite once
     if (!this.follower) {
-        this.createFollowerSprite(candyType);
-        return;
+      this.createFollowerSprite(candyType);
+      return;
     }
 
     // Update texture if candy changed
     if (this.follower.texture.key !== candyType) {
-        this.follower.setTexture(candyType);
+      this.follower.setTexture(candyType);
     }
 
     // Update follower position each frame
     this.follower.x = this.followerPosition.x;
     this.follower.y = this.followerPosition.y;
     console.log(
-  "Rendered size:",
-  this.follower.displayWidth,
-  this.follower.displayHeight,
-  "Scale:",
-  this.follower.scaleX,
-  this.follower.scaleY
-);
-
+      "Rendered size:",
+      this.follower.displayWidth,
+      this.follower.displayHeight,
+      "Scale:",
+      this.follower.scaleX,
+      this.follower.scaleY,
+    );
   }
 
-
-
-  reset() {
+  stopAll() {
+    // Stop and remove the current tween if it exists
+    if (this.currentTween) {
+      this.currentTween.remove();
+      this.currentTween = null;
+      console.log("[AnimationExecutor] Current tween removed.");
+    }
+    // Also kill all tweens in the scene for safety
+    if (this.scene && this.scene.tweens) {
+      this.scene.tweens.killAll();
+      console.log("[AnimationExecutor] All tweens killed");
+    }
     this.commandQueue = [];
     this.isAnimating = false;
-    // This fixes sizing issues when resetting between candies, 
-    // but may cause a brief flash if the follower is visible during reset. 
+    // This fixes sizing issues when resetting between candies,
+    // but may cause a brief flash if the follower is visible during reset.
     // A more complex solution would be to hide the follower during reset
     // and show it again after repositioning.
     if (this.follower) {
-        this.follower.destroy();
-        this.follower = null;
+      this.follower.destroy();
+      this.follower = null;
     }
     const pos = this.pathManager.getCurrentPosition();
     this.followerPosition = { x: pos.x, y: pos.y };
+  }
+
+  reset() {
+    console.log("[AnimationExecutor] Resetting.");
+    this.stopAll();
     console.log(
-      `[AnimationExecutor] Reset. Follower position synced to PathManager at (${pos.x}, ${pos.y}). Queue cleared.`,
+      `[AnimationExecutor] Reset complete. Follower position synced to PathManager at (${this.followerPosition.x}, ${this.followerPosition.y}). Queue cleared.`,
     );
   }
 }
