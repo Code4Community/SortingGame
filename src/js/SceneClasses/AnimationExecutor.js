@@ -187,17 +187,59 @@ export default class AnimationExecutor {
     }
   }
 
+  createFollowerSprite(candyType) {
+    if (this.follower) return;
+
+    this.follower = this.scene.add.image(
+      this.followerPosition.x,
+      this.followerPosition.y,
+      candyType,
+    );
+
+    this.follower.setDisplaySize(64, 64); // normalize size
+    console.log("CREATING FOLLOWER SPRITE");
+  }
+
+  // drawFollower(graphics) {
+  //     const currentCandy = this.pathManager.getCurrentCandy();
+  //     const candyType = currentCandy ? currentCandy.type : "default";
+
+  //     let color = 0xff0000; // Default red
+  //     if (candyType.includes("blue")) color = 0x0000ff;
+  //     else if (candyType.includes("green")) color = 0x00ff00;
+  //     else if (candyType.includes("red")) color = 0xff0000;
+
+  //     graphics.fillStyle(color);
+  //     graphics.fillCircle(this.followerPosition.x, this.followerPosition.y, 20);
+  //   }
   drawFollower(graphics) {
     const currentCandy = this.pathManager.getCurrentCandy();
-    const candyType = currentCandy ? currentCandy.type : "default";
+    if (!currentCandy) return;
 
-    let color = 0xff0000; // Default red
-    if (candyType.includes("blue")) color = 0x0000ff;
-    else if (candyType.includes("green")) color = 0x00ff00;
-    else if (candyType.includes("red")) color = 0xff0000;
+    const candyType = currentCandy.path;
 
-    graphics.fillStyle(color);
-    graphics.fillCircle(this.followerPosition.x, this.followerPosition.y, 20);
+    // Create follower sprite once
+    if (!this.follower) {
+      this.createFollowerSprite(candyType);
+      return;
+    }
+
+    // Update texture if candy changed
+    if (this.follower.texture.key !== candyType) {
+      this.follower.setTexture(candyType);
+    }
+
+    // Update follower position each frame
+    this.follower.x = this.followerPosition.x;
+    this.follower.y = this.followerPosition.y;
+    console.log(
+      "Rendered size:",
+      this.follower.displayWidth,
+      this.follower.displayHeight,
+      "Scale:",
+      this.follower.scaleX,
+      this.follower.scaleY,
+    );
   }
 
   stopAll() {
@@ -214,7 +256,15 @@ export default class AnimationExecutor {
     }
     this.commandQueue = [];
     this.isAnimating = false;
-    const pos = this.pathManager.getStartingPosition();
+    // This fixes sizing issues when resetting between candies,
+    // but may cause a brief flash if the follower is visible during reset.
+    // A more complex solution would be to hide the follower during reset
+    // and show it again after repositioning.
+    if (this.follower) {
+      this.follower.destroy();
+      this.follower = null;
+    }
+    const pos = this.pathManager.getCurrentPosition();
     this.followerPosition = { x: pos.x, y: pos.y };
   }
 

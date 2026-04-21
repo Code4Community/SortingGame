@@ -17,10 +17,48 @@ export default class Level1 extends Phaser.Scene {
   levelHelper;
   currentLevel = "Level1";
 
+  // ---------------------------------------------------------
+  // ADDED: Array to track preview candy sprites
+  // ---------------------------------------------------------
+  previewSprites = [];
+  // ---------------------------------------------------------
+
   preload() {
     this.load.image("background", "assets/background.png");
     console.log(`[${this.currentLevel}] Preloading background image.`);
+    this.load.image("Connector", "assets/conveyer_photos/Connector.png");
+    this.load.image("ConveyerDown", "assets/conveyer_photos/ConveyerDown.png");
+    this.load.image("ConveyerAll", "assets/conveyer_photos/ConnectorAll.png");
+    this.load.image("ConveyerLeft", "assets/conveyer_photos/Left_Belt.png");
+    this.load.image("ConveyerRight", "assets/conveyer_photos/Right_belt.png");
+    this.load.image("tester", "assets/candy_photos/blue-square-dotted.png");
+    this.load.image("tester2", "assets/candy_photos/red-triangle-dotted.png");
+    this.load.image(
+      "tester3",
+      "assets/candy_photos/green-triangle-dotted - Copy.png",
+    );
   }
+
+  ConveyerMap = {
+    0: "",
+    1: "ConveyerDown",
+    2: "ConveyerLeft",
+    3: "ConveyerRight",
+    4: "Connector",
+    5: "ConveyerAll",
+  };
+
+  levelData = [
+    [0, 1, 0],
+    [0, 1, 0],
+    [0, 1, 0],
+    [0, 1, 0],
+    [0, 1, 0],
+    [2, 4, 3],
+    [1, 0, 1],
+    [1, 0, 1],
+    [1, 0, 1],
+  ];
 
   initializeEditorWindow() {
     LevelHelper.initializeEditorWindow(
@@ -30,9 +68,6 @@ export default class Level1 extends Phaser.Scene {
   }
 
   initializeBackgroundGraphics() {
-    this.add.image(400, 300, "background");
-    console.log(`[${this.currentLevel}] Background image added.`);
-
     this.graphics = this.add.graphics();
     console.log(`[${this.currentLevel}] Graphics object created.`);
   }
@@ -55,20 +90,75 @@ export default class Level1 extends Phaser.Scene {
     });
   }
 
+  // ---------------------------------------------------------
+  // ADDED: Render preview candies on the right side
+  // ---------------------------------------------------------
+  renderCandyPreview(candies) {
+    this.previewSprites.forEach((sprite) => sprite.destroy());
+    this.previewSprites = [];
+
+    const startX = 750;
+    const startY = 150;
+    const spacing = 100;
+
+    candies.forEach((candy, index) => {
+      const sprite = this.add.image(
+        startX,
+        startY + index * spacing,
+        candy.path,
+      );
+      sprite.setScale(0.8);
+      sprite.setDepth(10);
+      this.previewSprites.push(sprite);
+    });
+  }
+  // ---------------------------------------------------------
+
+  // ---------------------------------------------------------
+  // ADDED: Remove first preview candy when used
+  // ---------------------------------------------------------
+  removeFirstPreviewCandy() {
+    if (this.previewSprites.length > 0) {
+      const sprite = this.previewSprites.shift();
+      sprite.destroy();
+
+      this.previewSprites.forEach((sprite, index) => {
+        this.tweens.add({
+          targets: sprite,
+          y: 150 + index * 100,
+          duration: 200,
+          ease: "Power2",
+        });
+      });
+    }
+  }
+  // ---------------------------------------------------------
+
   setupLevelCandies() {
     const candies = [
-      new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
-      new Candy(Colors.RED, Shapes.SQUARE, Patterns.PLAIN),
-      new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.PLAIN),
+      new Candy(Colors.BLUE, Shapes.SQUARE, Patterns.DOTTED, "tester"),
+      new Candy(Colors.RED, Shapes.TRIANGLE, Patterns.DOTTED, "tester2"),
+      new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.DOTTED, "tester3"),
     ];
 
+    console.log(
+      candies[0].imagePath,
+      candies[1].imagePath,
+      candies[2].imagePath,
+    );
+
+    // ---------------------------------------------------------
+    // ADDED: Show preview candies
+    // ---------------------------------------------------------
+    this.renderCandyPreview(candies);
+    // ---------------------------------------------------------
+
     const goalPositions = {
-      "blue-circle": { x: 200, y: 400 }, // Left bin
-      "red-square": { x: 600, y: 400 }, // Right bin
-      "green-triangle": { x: 400, y: 500 }, // Bottom bin
+      tester: { x: 200, y: 400 },
+      tester2: { x: 600, y: 400 },
+      tester3: { x: 400, y: 200 },
     };
 
-    // Set up callbacks for candy completion
     this.pathManager.setCallbacks(
       (candy) => this.onCandySuccess(candy),
       (candy, position) => this.onCandyFailed(candy, position),
@@ -77,13 +167,21 @@ export default class Level1 extends Phaser.Scene {
     this.pathManager.setupCandyQueueAndGoalPositions(candies, goalPositions);
   }
 
-  //Having these two methods below in Level1.js is fine for now- to be discussed if we just
-  //want the same behavior for each case anyways, if so we can just export it to CommandManager
   onCandySuccess(candy) {
+    // ---------------------------------------------------------
+    // ADDED: Remove preview candy on success
+    // ---------------------------------------------------------
+    this.removeFirstPreviewCandy();
+    // ---------------------------------------------------------
     LevelHelper.onCandySuccess(this, candy);
   }
 
   onCandyFailed(candy, position) {
+    // ---------------------------------------------------------
+    // ADDED: Remove preview candy on failure
+    // ---------------------------------------------------------
+    this.removeFirstPreviewCandy();
+    // ---------------------------------------------------------
     this.levelHelper.onCandyFailed(this, candy, position);
   }
 
@@ -97,10 +195,14 @@ export default class Level1 extends Phaser.Scene {
         },
         isBlue: () => this.pathManager.getCurrentCandy()?.color === Colors.BLUE,
         isRed: () => this.pathManager.getCurrentCandy()?.color === Colors.RED,
-        isGreen: () => this.pathManager.getCurrentCandy()?.color === Colors.GREEN,
-        isCircle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.CIRCLE,
-        isSquare: () => this.pathManager.getCurrentCandy()?.shape == Shapes.SQUARE,
-        isTriangle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.TRIANGLE,
+        isGreen: () =>
+          this.pathManager.getCurrentCandy()?.color === Colors.GREEN,
+        isCircle: () =>
+          this.pathManager.getCurrentCandy()?.shape == Shapes.CIRCLE,
+        isSquare: () =>
+          this.pathManager.getCurrentCandy()?.shape == Shapes.SQUARE,
+        isTriangle: () =>
+          this.pathManager.getCurrentCandy()?.shape == Shapes.TRIANGLE,
       },
       queued: {
         queuedCommand: () => {
@@ -115,7 +217,7 @@ export default class Level1 extends Phaser.Scene {
   initializeRunCodeButton() {
     this.levelHelper.initializeRunCodeButton(this);
   }
-  // Add a button to reset the level completely
+
   initializeResetButton() {
     this.levelHelper.initializeResetButton(this);
   }
@@ -151,14 +253,50 @@ export default class Level1 extends Phaser.Scene {
     this.queueManager.levelHelper = this.levelHelper;
     console.log(this.levelHelper);
 
-    //Set up the level
     this.createLinesForConveyerBelt();
     this.createIncrementalCommands();
     this.setupLevelCandies();
     this.defineInterpreterCommands();
     this.initializeRunCodeButton();
     this.initializeResetButton();
+
+    const tileSize = 64;
+    const offsetX = 305;
+    const offsetY = 0;
+
+    for (var row = 0; row < this.levelData.length; row++) {
+      for (var col = 0; col < this.levelData[row].length; col++) {
+        var tileType = this.levelData[row][col];
+        var textureKey = this.ConveyerMap[tileType];
+        if (textureKey === "") continue;
+        var image = this.add
+          .image(offsetX + col * tileSize, offsetY + row * tileSize, textureKey)
+          .setOrigin(0);
+        image.setScale(2);
+        image.setDepth(-1);
+      }
+    }
   }
+
+  moveToCenter = (gameObject) => {
+    this.tweens.add({
+      targets: gameObject,
+      x: 400,
+      y: 100,
+      ease: "Power2",
+      duration: 2000,
+    });
+  };
+
+  moveUpSpot = (gameObject) => {
+    this.tweens.add({
+      targets: gameObject,
+      x: 700,
+      y: gameObject.y - 100,
+      ease: "Power2",
+      duration: 2000,
+    });
+  };
 
   update() {
     this.graphics.clear();
