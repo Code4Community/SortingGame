@@ -182,7 +182,7 @@ export default class Level1 extends Phaser.Scene {
     // ---------------------------------------------------------
     this.removeFirstPreviewCandy();
     // ---------------------------------------------------------
-    LevelHelper.onCandyFailed(this, candy, position);
+    this.levelHelper.onCandyFailed(this, candy, position);
   }
 
   defineInterpreterCommands() {
