@@ -36,3 +36,62 @@ p{
 margin : 0; 
 padding-top:0;
 }
+
+#main_view {
+    position: relative;
+}
+
+#candy-hud {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 180px;
+    padding: 10px 12px;
+    border-radius: 0;
+    background: #ffffff;
+    border: 1px solid #d5d5d5;
+    box-shadow: none;
+    color: #111111;
+    font-family: Arial, sans-serif;
+    z-index: 10;
+}
+
+.candy-hud-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #222222;
+    margin-bottom: 8px;
+}
+
+.candy-hud-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 0.9rem;
+    color: #111111;
+}
+
+.candy-hud-row:last-child {
+    border-bottom: none;
+}
+
+.candy-hud-type {
+    text-transform: capitalize;
+}
+
+.candy-hud-count {
+    font-weight: 700;
+    color: #111111;
+    min-width: 1.5em;
+    text-align: right;
+}
+
+.candy-hud-empty {
+    font-size: 0.85rem;
+    color: #444444;
+}

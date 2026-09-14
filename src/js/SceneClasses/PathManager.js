@@ -10,6 +10,7 @@ export default class PathManager {
     this.candyQueue = []; //Queue of candies to process
     this.onCandyComplete = null; //Callback for when candy reaches goal
     this.onCandyFailed = null; //Callback for when candy is in wrong position
+    this.hudCounts = new Map();
 
     console.log(
       `[PathManager] Initialized. Starting Position: (${this.startingPosition.x}, ${this.startingPosition.y})`,
@@ -92,7 +93,65 @@ export default class PathManager {
     return this.incrementalCommands.get(commandName);
   }
 
+  getCandyTypeCounts() {
+    const counts = new Map();
+
+    const addCandy = (candy) => {
+      if (!candy) return;
+      const key = candy.type;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    };
+
+    if (this.currentCandy) {
+      addCandy(this.currentCandy);
+    }
+
+    this.candyQueue.forEach(addCandy);
+
+    const allTypes = new Set([
+      ...this.hudCounts.keys(),
+      ...counts.keys(),
+    ]);
+
+    for (const type of allTypes) {
+      counts.set(type, counts.get(type) || 0);
+    }
+
+    this.hudCounts = new Map(
+      [...counts.entries()].sort(([a], [b]) => a.localeCompare(b)),
+    );
+
+    return this.hudCounts;
+  }
+
+  updateCandyHud() {
+    const hud = document.getElementById("candy-hud");
+    if (!hud) {
+      return;
+    }
+
+    const counts = this.getCandyTypeCounts();
+
+    const rows = [...counts.entries()]
+      .map(([type, count]) => {
+        const label = type.replace("-", " ");
+        return `
+          <div class="candy-hud-row">
+            <span class="candy-hud-type">${label}</span>
+            <span class="candy-hud-count">${count}</span>
+          </div>
+        `;
+      })
+      .join("");
+
+    hud.innerHTML = `
+      <div class="candy-hud-title">Candy Stock</div>
+      ${rows || '<div class="candy-hud-empty">No candies left</div>'}
+    `;
+  }
+
   setupCandyQueueAndGoalPositions(candies, goalPositions) {
+    this.hudCounts.clear();
     this.candyQueue = [...candies];
     this.goalPositions.clear();
 
@@ -100,6 +159,11 @@ export default class PathManager {
     Object.entries(goalPositions).forEach(([candyType, position]) => {
       this.goalPositions.set(candyType, position);
     });
+
+    for (const candy of candies) {
+      const key = candy.type;
+      this.hudCounts.set(key, (this.hudCounts.get(key) || 0) + 1);
+    }
 
     console.log(
       `[PathManager] Setup complete. ${candies.length} candies queued. ${this.goalPositions.size} goal positions defined.`,
@@ -110,6 +174,7 @@ export default class PathManager {
     );
 
     this.startNextCandy();
+    this.updateCandyHud();
   }
 
   //Start processing the next candy
@@ -120,10 +185,12 @@ export default class PathManager {
       console.log(
         `[PathManager] Starting next candy: ${this.currentCandy.type}. Remaining in queue: ${this.candyQueue.length}`,
       );
+      this.updateCandyHud();
       return true;
     } else {
       this.currentCandy = null;
       console.log(`[PathManager] All candies completed! Queue is empty.`);
+      this.updateCandyHud();
       return false;
     }
   }
@@ -169,6 +236,7 @@ export default class PathManager {
   dumpCandy() {
     if (!this.currentCandy) {
       console.warn(`[PathManager] Dump failed: No current candy to dump.`);
+      this.updateCandyHud();
       return { success: false, hasMoreCandies: this.candyQueue.length > 0 }; // Return consistent structure
     }
 
@@ -190,6 +258,7 @@ export default class PathManager {
 
       //Start next candy
       const hasMoreCandies = this.startNextCandy();
+      this.updateCandyHud();
       return { success: true, hasMoreCandies };
     } else {
       console.log(
@@ -202,6 +271,7 @@ export default class PathManager {
         console.log(this);
       }
 
+      this.updateCandyHud();
       // The failed candy remains the current candy until manually addressed, but we return the queue status.
       return { success: false, hasMoreCandies: this.candyQueue.length > 0 }; // Return current queue status
     }
