@@ -58,15 +58,15 @@ export default class Level2 extends Phaser.Scene {
     //Define the candies for this level
     const candies = [
       new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
-      new Candy(Colors.RED, Shapes.SQUARE, Patterns.PLAIN),
-      new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.PLAIN),
+      new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
+      new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
+      new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
+      new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN)
     ];
 
     //Define goal positions for each candy type. Again, adjust to using the Candy class
     const goalPositions = {
       "blue-circle": { x: 200, y: 500 }, // Left bin
-      "red-square": { x: 600, y: 400 }, // Right bin
-      "green-triangle": { x: 400, y: 500 }, // Bottom bin
     };
 
     // Set up callbacks for candy completion
