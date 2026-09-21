@@ -1,5 +1,6 @@
 import Level1 from './level1.js';
 import Level2 from './level2.js';
+import Level3 from './level3.js'
 
 //Here, we import the level files. 
 //Later, we'll want to abstract this process into a function or switch case to call specific levels.
@@ -10,10 +11,17 @@ const config = {
     width: 800,
     height: 600,
     backgroundColor: '#2d2d2d',
+    
+    input: {
+        windowEvents: false,
+        mouse: {
+            preventDefaultWheel: false
+        }
+    },
     dom: {
         createContainer: true,
       },
-    scene: [Level1, Level2]
+    scene: [Level1, Level2, Level3]
 };
 
 //Setting up the theme for the text editor
@@ -48,6 +56,7 @@ document.getElementById('level-select').addEventListener('change', (event) => {
           break;
       case '3':
           scene = 'Level3';
+          console.log('Level3')
           game.scene.stop('Level1');
           game.scene.stop('Level2');
           game.scene.start(scene);
