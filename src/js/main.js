@@ -1,6 +1,5 @@
 import Level1 from './level1.js';
 import Level2 from './level2.js';
-import Level3 from './level3.js'
 
 //Here, we import the level files. 
 //Later, we'll want to abstract this process into a function or switch case to call specific levels.
@@ -21,7 +20,7 @@ const config = {
     dom: {
         createContainer: true,
       },
-    scene: [Level1, Level2, Level3]
+    scene: [Level1, Level2]
 };
 
 //Setting up the theme for the text editor
@@ -36,8 +35,10 @@ const theme = {
     }
   }
 
+const levelSelect = document.getElementById('level-select');
+
 //Event listener for level select
-document.getElementById('level-select').addEventListener('change', (event) => {
+levelSelect.addEventListener('change', (event) => {
   const selectedLevel = event.target.value;
   var scene;
 
@@ -54,13 +55,6 @@ document.getElementById('level-select').addEventListener('change', (event) => {
           game.scene.stop('Level1');
           game.scene.start(scene);
           break;
-      case '3':
-          scene = 'Level3';
-          console.log('Level3')
-          game.scene.stop('Level1');
-          game.scene.stop('Level2');
-          game.scene.start(scene);
-          break;
       // Add more cases for additional levels later when added
       default:
           scene = 'Level1';
@@ -70,8 +64,16 @@ document.getElementById('level-select').addEventListener('change', (event) => {
   }
 });
 
+// Advance to the next configured level when the button is clicked.
+document.getElementById('nextLevel').addEventListener('click', () => {
+  if (levelSelect.selectedIndex < config.scene.length - 1) {
+    levelSelect.selectedIndex += 1;
+    levelSelect.dispatchEvent(new Event('change'));
+  }
+});
+
 // Reset dropdown to Level 1 on page load
-document.getElementById('level-select').value = '1';
+levelSelect.value = '1';
 
 //Setting up text editor
 C4C.Editor.create(document.getElementById("editor-here"), theme, true); //the element id doesn't actually make a difference. Idk why.
