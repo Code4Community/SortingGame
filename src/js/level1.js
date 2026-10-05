@@ -95,9 +95,9 @@ export default class Level1 extends Phaser.Scene {
             "This is an example custom command, should run immediately",
           );
         },
-        isBlue: () => this.pathManager.getCurrentCandy()?.color === Colors.BLUE,
-        isRed: () => this.pathManager.getCurrentCandy()?.color === Colors.RED,
-        isGreen: () => this.pathManager.getCurrentCandy()?.color === Colors.GREEN,
+        isBlue: () => this.queueManager.getPlannedCandy()?.color === Colors.BLUE,
+        isRed: () => this.queueManager.getPlannedCandy()?.color === Colors.RED,
+        isGreen: () => this.queueManager.getPlannedCandy()?.color === Colors.GREEN,
         isCircle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.CIRCLE,
         isSquare: () => this.pathManager.getCurrentCandy()?.shape == Shapes.SQUARE,
         isTriangle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.TRIANGLE,

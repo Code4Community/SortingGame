@@ -96,9 +96,9 @@ export default class Level2 extends Phaser.Scene {
             "This is an example custom command, should run immediately",
           );
         },
-        isBlue: () => this.pathManager.getCurrentCandy()?.color === Colors.BLUE,
-        isRed: () => this.pathManager.getCurrentCandy()?.color === Colors.RED,
-        isGreen: () => this.pathManager.getCurrentCandy()?.color === Colors.GREEN,
+        isBlue: () => this.queueManager.getPlannedCandy()?.color === Colors.BLUE,
+        isRed: () => this.queueManager.getPlannedCandy()?.color === Colors.RED,
+        isGreen: () => this.queueManager.getPlannedCandy()?.color === Colors.GREEN,
       },
       queued: {
         queuedCommand: () => {
