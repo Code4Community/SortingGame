@@ -1,5 +1,6 @@
 import Level1 from './level1.js';
 import Level2 from './level2.js';
+import Level3 from './level3.js';
 
 //Here, we import the level files. 
 //Later, we'll want to abstract this process into a function or switch case to call specific levels.
@@ -20,7 +21,7 @@ const config = {
     dom: {
         createContainer: true,
       },
-    scene: [Level1, Level2]
+    scene: [Level1, Level2, Level3]
 };
 
 //Setting up the theme for the text editor
@@ -47,18 +48,28 @@ levelSelect.addEventListener('change', (event) => {
           scene = 'Level1';
           console.log('Level1');
           game.scene.stop('Level2');
+          game.scene.stop('Level3');
           game.scene.start(scene);
           break;
       case '2':
           scene = 'Level2';
           console.log('Level2');
           game.scene.stop('Level1');
+          game.scene.stop('Level3');
           game.scene.start(scene);
           break;
       // Add more cases for additional levels later when added
+      case '3':
+          scene = 'Level3';
+          console.log('Level3');
+          game.scene.stop('Level1');
+          game.scene.stop('Level2');
+          game.scene.start(scene);
+          break;
       default:
           scene = 'Level1';
           game.scene.stop('Level2');
+          game.scene.stop('Level3');
           game.scene.start(scene);
           break;
   }
@@ -115,6 +126,4 @@ function preload() {
   this.load.image("redTriangleDotted", "src/assets/candy_photos/red-triangle-dotted.png");
   this.load.image("redTriangle", "src/assets/candy_photos/red-triangle-nopattern.png");
   this.load.image("redTriangleStriped", "src/assets/candy_photos/red-triangle-striped.png");
-
-
 }

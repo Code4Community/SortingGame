@@ -1,4 +1,5 @@
 import LevelHelper from "./LevelHelper.js";
+
 export default class QueueManager {
   constructor(
     pathManager,
@@ -25,6 +26,9 @@ export default class QueueManager {
       this._onMovementComplete(pos);
     this.animationExecutor.onDumpComplete = (result) =>
       this._onDumpComplete(result);
+
+    this.plannedCandyQueue = [];
+    this.plannedCandyIndex = 0;
   }
 
   setOnSuccessfulDump(fn) {
@@ -34,11 +38,23 @@ export default class QueueManager {
   reset() {
     this.queue = [];
     this.plannedPosition = this.pathManager.getCurrentPosition();
+
+    this.plannedCandyQueue = [
+        this.pathManager.getCurrentCandy(),
+        ...this.pathManager.getRemainingCandies()
+    ].filter(Boolean);
+
+    this.plannedCandyIndex = 0;
+
     this.onSuccessfulDump = null;
     console.log(
       "[QueueManager] Reset. Planned position:",
       this.plannedPosition,
     );
+  }
+
+  getPlannedCandy() {
+    return this.plannedCandyQueue[this.plannedCandyIndex] ?? null;
   }
 
   stopAllExecution() {
@@ -75,6 +91,9 @@ export default class QueueManager {
     } else {
       this.plannedPosition = this.pathManager.getCurrentPosition();
     }
+
+    this.plannedCandyIndex++;
+
     console.log(
       `[QueueManager] Scheduled dumpCandy. New Queue size: ${this.queue.length}. Planned position reset to:`,
       this.plannedPosition,
