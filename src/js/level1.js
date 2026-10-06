@@ -46,9 +46,9 @@ export default class Level1 extends LevelScene {
         isBlue: () => this.queueManager.getPlannedCandy()?.color === Colors.BLUE,
         isRed: () => this.queueManager.getPlannedCandy()?.color === Colors.RED,
         isGreen: () => this.queueManager.getPlannedCandy()?.color === Colors.GREEN,
-        isCircle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.CIRCLE,
-        isSquare: () => this.pathManager.getCurrentCandy()?.shape == Shapes.SQUARE,
-        isTriangle: () => this.pathManager.getCurrentCandy()?.shape == Shapes.TRIANGLE,
+        isCircle: () => this.queueManager.getPlannedCandy()?.shape == Shapes.CIRCLE,
+        isSquare: () => this.queueManager.getPlannedCandy()?.shape == Shapes.SQUARE,
+        isTriangle: () => this.queueManager.getPlannedCandy()?.shape == Shapes.TRIANGLE,
       },
       queued: {
         queuedCommand: () => {
