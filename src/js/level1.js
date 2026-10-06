@@ -1,5 +1,4 @@
 import LevelScene from "./SceneClasses/LevelScene.js";
-import LevelHelper from "./SceneClasses/LevelHelper.js";
 import Candy, { Colors, Shapes, Patterns } from "./candy.js";
 
 export default class Level1 extends LevelScene {
@@ -33,31 +32,6 @@ export default class Level1 extends LevelScene {
     };
 
     this.setupCandyQueue(candies, goalPositions);
-  }
-
-  defineInterpreterCommands() {
-    LevelHelper.defineInterpreterCommands(this.commandManager, {
-      immediate: {
-        sampleCommand: () => {
-          console.log(
-            "This is an example custom command, should run immediately",
-          );
-        },
-        isBlue: () => this.queueManager.getPlannedCandy()?.color === Colors.BLUE,
-        isRed: () => this.queueManager.getPlannedCandy()?.color === Colors.RED,
-        isGreen: () => this.queueManager.getPlannedCandy()?.color === Colors.GREEN,
-        isCircle: () => this.queueManager.getPlannedCandy()?.shape == Shapes.CIRCLE,
-        isSquare: () => this.queueManager.getPlannedCandy()?.shape == Shapes.SQUARE,
-        isTriangle: () => this.queueManager.getPlannedCandy()?.shape == Shapes.TRIANGLE,
-      },
-      queued: {
-        queuedCommand: () => {
-          console.log(
-            "This is an example custom command that is queued according to animation, should run in animation sequence",
-          );
-        },
-      },
-    });
   }
 
 }

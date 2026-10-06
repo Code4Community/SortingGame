@@ -3,6 +3,7 @@ import AnimationExecutor from "./AnimationExecutor.js";
 import CommandManager from "./CommandManager.js";
 import QueueManager from "./QueueManager.js";
 import LevelHelper from "./LevelHelper.js";
+import { Colors, Shapes } from "../candy.js";
 
 export default class LevelScene extends Phaser.Scene {
   constructor(levelName, initialProgram = "") {
@@ -39,6 +40,33 @@ export default class LevelScene extends Phaser.Scene {
       moveRight: (currentPos) => ({ x: currentPos.x + 100, y: currentPos.y }),
       moveUp: (currentPos) => ({ x: currentPos.x, y: currentPos.y - 100 }),
       moveDown: (currentPos) => ({ x: currentPos.x, y: currentPos.y + 100 }),
+    });
+  }
+
+  defineCommonInterpreterCommands() {
+    const getPlannedCandy = () => this.queueManager.getPlannedCandy();
+
+    LevelHelper.defineInterpreterCommands(this.commandManager, {
+      immediate: {
+        sampleCommand: () => {
+          console.log(
+            "This is an example custom command, should run immediately",
+          );
+        },
+        isBlue: () => getPlannedCandy()?.color === Colors.BLUE,
+        isRed: () => getPlannedCandy()?.color === Colors.RED,
+        isGreen: () => getPlannedCandy()?.color === Colors.GREEN,
+        isCircle: () => getPlannedCandy()?.shape === Shapes.CIRCLE,
+        isSquare: () => getPlannedCandy()?.shape === Shapes.SQUARE,
+        isTriangle: () => getPlannedCandy()?.shape === Shapes.TRIANGLE,
+      },
+      queued: {
+        queuedCommand: () => {
+          console.log(
+            "This is an example custom command that is queued according to animation, should run in animation sequence",
+          );
+        },
+      },
     });
   }
 
@@ -85,7 +113,7 @@ export default class LevelScene extends Phaser.Scene {
     this.createLinesForConveyerBelt();
     this.createIncrementalCommands();
     this.setupLevelCandies();
-    this.defineInterpreterCommands();
+    this.defineCommonInterpreterCommands();
     this.levelHelper.initializeRunCodeButton(this);
     this.levelHelper.initializeResetButton(this);
   }
