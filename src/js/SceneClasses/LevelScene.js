@@ -6,10 +6,11 @@ import LevelHelper from "./LevelHelper.js";
 import { Colors, Shapes } from "../candy.js";
 
 export default class LevelScene extends Phaser.Scene {
-  constructor(levelName, initialProgram = "") {
+  constructor(levelName, initialProgram = "", showPathLines = true) {
     super({ key: levelName });
     this.currentLevel = levelName;
     this.initialProgram = initialProgram;
+    this.showPathLines = showPathLines;
   }
 
   graphics;
@@ -20,6 +21,7 @@ export default class LevelScene extends Phaser.Scene {
   levelHelper;
   currentLevel;
   initialProgram;
+  showPathLines;
 
   preload() {
     // this.load.image("background", "assets/factorybackground.png");
@@ -122,7 +124,9 @@ export default class LevelScene extends Phaser.Scene {
     this.graphics.clear();
     this.graphics.lineStyle(4, 0xffffff, 1);
 
-    this.pathManager.drawAll(this.graphics);
+    if (this.showPathLines) {
+      this.pathManager.drawAll(this.graphics);
+    }
     this.animationExecutor.drawFollower(this.graphics);
   }
 }
