@@ -37,6 +37,13 @@ const theme = {
   }
 
 const levelSelect = document.getElementById('level-select');
+const previousLevelButton = document.getElementById('previousLevel');
+const nextLevelButton = document.getElementById('nextLevel');
+
+function updateLevelNavigationButtons() {
+  previousLevelButton.disabled = levelSelect.selectedIndex === 0;
+  nextLevelButton.disabled = levelSelect.selectedIndex >= config.scene.length - 1;
+}
 
 //Event listener for level select
 levelSelect.addEventListener('change', (event) => {
@@ -73,10 +80,20 @@ levelSelect.addEventListener('change', (event) => {
           game.scene.start(scene);
           break;
   }
+
+  updateLevelNavigationButtons();
+});
+
+// Move to the previous configured level when the button is clicked.
+document.getElementById('previousLevel').addEventListener('click', () => {
+  if (levelSelect.selectedIndex > 0) {
+    levelSelect.selectedIndex -= 1;
+    levelSelect.dispatchEvent(new Event('change'));
+  }
 });
 
 // Advance to the next configured level when the button is clicked.
-document.getElementById('nextLevel').addEventListener('click', () => {
+nextLevelButton.addEventListener('click', () => {
   if (levelSelect.selectedIndex < config.scene.length - 1) {
     levelSelect.selectedIndex += 1;
     levelSelect.dispatchEvent(new Event('change'));
@@ -85,6 +102,7 @@ document.getElementById('nextLevel').addEventListener('click', () => {
 
 // Reset dropdown to Level 1 on page load
 levelSelect.value = '1';
+updateLevelNavigationButtons();
 
 //Setting up text editor
 C4C.Editor.create(document.getElementById("editor-here"), theme, true); //the element id doesn't actually make a difference. Idk why.

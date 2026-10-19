@@ -22,7 +22,7 @@ export default class LevelScene extends Phaser.Scene {
   initialProgram;
 
   preload() {
-    this.load.image("background", "assets/background.png");
+    // this.load.image("background", "assets/factorybackground.png");
     console.log(`[${this.currentLevel}] Preloading background image.`);
   }
 
