@@ -19,6 +19,9 @@ export default class Level1 extends Phaser.Scene {
 
   preload() {
     this.load.image("background", "assets/background.png");
+    this.load.image("blue-circle-nopattern", "assets/candy_photos/blue-circle-nopattern.png")
+    this.load.image("red-circle-nopattern", "assets/candy_photos/red-circle-nopattern.png")
+    this.load.image("green-circle-nopattern", "assets/candy_photos/green-circle-nopattern.png")
     console.log(`[${this.currentLevel}] Preloading background image.`);
   }
 
@@ -58,14 +61,14 @@ export default class Level1 extends Phaser.Scene {
   setupLevelCandies() {
     const candies = [
       new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
-      new Candy(Colors.RED, Shapes.SQUARE, Patterns.PLAIN),
-      new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.PLAIN),
+      new Candy(Colors.RED, Shapes.CIRCLE, Patterns.PLAIN),
+      new Candy(Colors.GREEN, Shapes.CIRCLE, Patterns.PLAIN),
     ];
 
     const goalPositions = {
       "blue-circle": { x: 200, y: 400 }, // Left bin
-      "red-square": { x: 600, y: 400 }, // Right bin
-      "green-triangle": { x: 400, y: 500 }, // Bottom bin
+      "red-circle": { x: 600, y: 400 }, // Right bin
+      "green-circle": { x: 400, y: 500 }, // Bottom bin
     };
 
     // Set up callbacks for candy completion

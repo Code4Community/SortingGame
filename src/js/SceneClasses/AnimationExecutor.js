@@ -6,6 +6,7 @@ export default class AnimationExecutor {
     this.isAnimating = false;
     this.followerPosition = { x: 400, y: 300 };
     this.speedPxPerSec = 300;
+    this.currentImage = "";
 
     // Callbacks set by QueueManager
     this.onMovementComplete = null;
@@ -191,13 +192,59 @@ export default class AnimationExecutor {
     const currentCandy = this.pathManager.getCurrentCandy();
     const candyType = currentCandy ? currentCandy.type : "default";
 
-    let color = 0xff0000; // Default red
-    if (candyType.includes("blue")) color = 0x0000ff;
-    else if (candyType.includes("green")) color = 0x00ff00;
-    else if (candyType.includes("red")) color = 0xff0000;
+    let image = "blue-circle-nopattern";
+    if (candyType.includes("green")) {
+        image="green";
+    }
+    else if (candyType.includes("red")) {
+        image="red";
+    }
+    else {
+        image = "blue";
+    }
+    if(candyType.includes("square")) {
+        image+="-square";
+    }
+    else if(candyType.includes("triangle")) {
+        image+="-triangle";
+    }
+    else{
+        image+="-circle";
+    }
+    if(candyType.includes("dotted")) {
+        image+="-dotted";
+    }
+    else if(candyType.includes("striped")) {
+        image+="-striped";
+    }
+    else{
+        image+="-nopattern";
+    }
 
-    graphics.fillStyle(color);
-    graphics.fillCircle(this.followerPosition.x, this.followerPosition.y, 20);
+    if(!this.followerImage) {
+        this.followerImage = this.scene.add.image(
+            this.followerPosition.x,
+            this.followerPosition.y,
+            image
+        );
+
+        this.followerImage.setDisplaySize(40, 40);
+    }
+
+    this.followerImage.setPosition(
+        this.followerPosition.x,
+        this.followerPosition.y
+    );
+
+
+    if(this.currentImage != image) {
+        console.log(image)
+        this.followerImage.setTexture(image);
+
+        this.followerImage.setDisplaySize(40, 40);
+
+        this.currentImage = image;
+    }
   }
 
   stopAll() {

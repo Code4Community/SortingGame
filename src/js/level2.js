@@ -19,6 +19,7 @@ export default class Level2 extends Phaser.Scene {
 
   preload() {
     this.load.image("background", "assets/background.png");
+    this.load.image("blue-circle-nopattern", "assets/candy_photos/blue-circle-nopattern.png")
     console.log(`[${this.currentLevel}] Preloading background image.`);
   }
 
