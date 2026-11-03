@@ -3,13 +3,21 @@ import Candy, { Colors, Shapes, Patterns } from "./candy.js";
 
 export default class Level2 extends LevelScene {
   constructor() {
-    super("Level2", "moveDown");
+    super("Level2", "moveDown", false);
   }
 
   create() {
     super.create();
     this.addConveyorArtwork();
     this.graphics.setDepth(2);
+  }
+
+  createLinesForConveyerBelt() {
+    this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
+    this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
+    this.pathManager.addLineFrom("left", "downleft", { x: 200, y: 500});
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
   }
 
   addConveyorArtwork() {

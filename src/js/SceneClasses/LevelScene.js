@@ -119,7 +119,8 @@ export default class LevelScene extends Phaser.Scene {
       this.queueManager,
     );
     this.queueManager.levelHelper = this.levelHelper;
-
+    
+    this.createLinesForConveyerBelt();
     this.createIncrementalCommands();
     this.setupLevelCandies();
     this.defineCommonInterpreterCommands();

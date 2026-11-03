@@ -16,6 +16,15 @@ export default class Level1 extends LevelScene {
     this.graphics.setDepth(2);
   }
 
+  createLinesForConveyerBelt() {
+    this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
+    this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
+    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
+    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
+  }
+
   addConveyorArtwork() {
     const tiles = [
       { x: 400, y: 100, texture: "ConveyerDown" },
