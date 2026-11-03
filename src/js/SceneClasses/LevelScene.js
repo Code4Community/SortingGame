@@ -26,6 +26,14 @@ export default class LevelScene extends Phaser.Scene {
   preload() {
     // this.load.image("background", "assets/factorybackground.png");
     console.log(`[${this.currentLevel}] Preloading background image.`);
+    this.load.image("Connector", "assets/conveyer_photos/Connector.png");
+    this.load.image("ConveyerDown", "assets/conveyer_photos/ConveyerDown.png");
+    this.load.image("ConveyerAll", "assets/conveyer_photos/ConnectorAll.png");
+    this.load.image("ConveyerLeft", "assets/conveyer_photos/ConveyerLeft.png");
+    this.load.image("ConveyerRight", "assets/conveyer_photos/ConveyerRight.png");
+    this.load.image("GoalBucket", "assets/conveyer_photos/GoalBucket.png");
+    this.load.image("ConveyerCurvedLeft", "assets/conveyer_photos/LeftBelt.png");
+    this.load.image("ConveyerCurvedRight", "assets/conveyer_photos/RightBelt.png");
   }
 
   initializeBackgroundGraphics() {
@@ -112,7 +120,6 @@ export default class LevelScene extends Phaser.Scene {
     );
     this.queueManager.levelHelper = this.levelHelper;
 
-    this.createLinesForConveyerBelt();
     this.createIncrementalCommands();
     this.setupLevelCandies();
     this.defineCommonInterpreterCommands();

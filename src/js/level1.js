@@ -10,16 +10,6 @@ export default class Level1 extends LevelScene {
     );
   }
 
-  preload() {
-    super.preload();
-    this.load.image("Connector", "assets/conveyer_photos/Connector.png");
-    this.load.image("ConveyerDown", "assets/conveyer_photos/ConveyerDown.png");
-    this.load.image("ConveyerAll", "assets/conveyer_photos/ConnectorAll.png");
-    this.load.image("ConveyerLeft", "assets/conveyer_photos/ConveyerLeft.png");
-    this.load.image("ConveyerRight", "assets/conveyer_photos/ConveyerRight.png");
-    this.load.image("GoalBucket", "assets/conveyer_photos/GoalBucket.png")
-  }
-
   create() {
     super.create();
     this.addConveyorArtwork();
@@ -42,15 +32,6 @@ export default class Level1 extends LevelScene {
     tiles.forEach(({ x, y, texture }) => {
       this.add.image(x, y, texture).setDisplaySize(100, 100).setDepth(1);
     });
-  }
-
-  createLinesForConveyerBelt() {
-    this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
-    this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
-    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
-    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
-    this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
-    this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
   }
 
   setupLevelCandies() {
