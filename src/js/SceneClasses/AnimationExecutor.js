@@ -6,6 +6,8 @@ export default class AnimationExecutor {
     this.isAnimating = false;
     this.followerPosition = { x: 400, y: 300 };
     this.speedPxPerSec = 300;
+    this.followerImage = null;
+    this.missingTextureKeys = new Set();
 
     // Callbacks set by QueueManager
     this.onMovementComplete = null;
@@ -189,13 +191,34 @@ export default class AnimationExecutor {
 
   drawFollower(graphics) {
     const currentCandy = this.pathManager.getCurrentCandy();
-    const candyType = currentCandy ? currentCandy.type : "default";
+    const textureKey = currentCandy?.imageKey;
 
     let color = 0xff0000; // Default red
-    if (candyType.includes("blue")) color = 0x0000ff;
-    else if (candyType.includes("green")) color = 0x00ff00;
-    else if (candyType.includes("red")) color = 0xff0000;
+    if (currentCandy?.color === "blue") color = 0x0000ff;
+    else if (currentCandy?.color === "green") color = 0x00ff00;
 
+    if (textureKey && this.scene.textures.exists(textureKey)) {
+      if (!this.followerImage) {
+        this.followerImage = this.scene.add
+          .image(this.followerPosition.x, this.followerPosition.y, textureKey)
+          .setDisplaySize(40, 40)
+          .setDepth(3);
+      } else {
+        if (this.followerImage.texture.key !== textureKey) {
+          this.followerImage.setTexture(textureKey);
+        }
+        this.followerImage
+          .setPosition(this.followerPosition.x, this.followerPosition.y)
+          .setVisible(true);
+      }
+      return;
+    }
+
+    if (textureKey && !this.missingTextureKeys.has(textureKey)) {
+      console.error(`[AnimationExecutor] Missing candy texture: ${textureKey}`);
+      this.missingTextureKeys.add(textureKey);
+    }
+    this.followerImage?.setVisible(false);
     graphics.fillStyle(color);
     graphics.fillCircle(this.followerPosition.x, this.followerPosition.y, 20);
   }

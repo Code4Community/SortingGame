@@ -34,6 +34,34 @@ export default class LevelScene extends Phaser.Scene {
     this.load.image("GoalBucket", "assets/conveyer_photos/GoalBucket.png");
     this.load.image("ConveyerCurvedLeft", "assets/conveyer_photos/LeftBelt.png");
     this.load.image("ConveyerCurvedRight", "assets/conveyer_photos/RightBelt.png");
+
+    this.load.image("blueCircleDotted", "assets/candy_photos/blue-circle-dotted.png");
+    this.load.image("blueCircle", "assets/candy_photos/blue-circle-nopattern.png");
+    this.load.image("blueSquareDotted", "assets/candy_photos/blue-square-dotted.png");
+    this.load.image("blueSquare", "assets/candy_photos/blue-square-nopattern.png");
+    this.load.image("blueSquareStriped", "assets/candy_photos/blue-square-striped.png");
+    this.load.image("blueTriangleDotted", "assets/candy_photos/blue-triangle-dotted.png");
+    this.load.image("blueTriangle", "assets/candy_photos/blue_triangle_nopattern.png");
+    this.load.image("blueTriangleStriped", "assets/candy_photos/blue-triangle-striped.png");
+    this.load.image("blueCircleStriped", "assets/candy_photos/blue_circle_striped.png");
+    this.load.image("greenCircleDotted", "assets/candy_photos/green-circle-dotted.png");
+    this.load.image("greenCircle", "assets/candy_photos/green-circle-nopattern.png");
+    this.load.image("greenCircleStriped", "assets/candy_photos/green-circle-striped.png");
+    this.load.image("greenSquareDotted", "assets/candy_photos/green-square-dotted.png");
+    this.load.image("greenSquare", "assets/candy_photos/green-square-nopattern.png");
+    this.load.image("greenSquareStriped", "assets/candy_photos/green-square-striped.png");
+    this.load.image("greenTriangleDotted", "assets/candy_photos/green-triangle-dotted.png");
+    this.load.image("greenTriangle", "assets/candy_photos/green-triangle-nopattern.png");
+    this.load.image("greenTriangleStriped", "assets/candy_photos/green-triangle-striped.png");
+    this.load.image("redCircleDotted", "assets/candy_photos/red-circle-dotted.png");
+    this.load.image("redCircle", "assets/candy_photos/red-circle-nopattern.png");
+    this.load.image("redCircleStripes", "assets/candy_photos/red-circle-stripes.png");
+    this.load.image("redSquareDotted", "assets/candy_photos/red-square-dotted.png");
+    this.load.image("redSquare", "assets/candy_photos/red-square-nopattern.png");
+    this.load.image("redSquareStriped", "assets/candy_photos/red-square-striped.png");
+    this.load.image("redTriangleDotted", "assets/candy_photos/red-triangle-dotted.png");
+    this.load.image("redTriangle", "assets/candy_photos/red-triangle-nopattern.png");
+    this.load.image("redTriangleStriped", "assets/candy_photos/red-triangle-striped.png");
   }
 
   initializeBackgroundGraphics() {
