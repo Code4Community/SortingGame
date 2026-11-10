@@ -10,6 +10,18 @@ export default class Level1 extends LevelScene {
     );
   }
 
+  preload() {
+    super.preload();
+    this.load.image("Connector", "assets/conveyer_photos/Connector.png");
+    this.load.image("ConveyerDown", "assets/conveyer_photos/ConveyerDown.png");
+    this.load.image("ConveyerAll", "assets/conveyer_photos/ConnectorAll.png");
+    this.load.image("ConveyerLeft", "assets/conveyer_photos/ConveyerLeft.png");
+    this.load.image("ConveyerRight", "assets/conveyer_photos/ConveyerRight.png");
+    this.load.image("BlueBucket", "assets/conveyer_photos/BlueBucket.png")
+    this.load.image("RedBucket", "assets/conveyer_photos/RedBucket.png")
+    this.load.image("GreenBucket", "assets/conveyer_photos/GreenBucket.png")
+  }
+
   create() {
     super.create();
     this.addConveyorArtwork();
@@ -31,10 +43,10 @@ export default class Level1 extends LevelScene {
       { x: 400, y: 200, texture: "ConveyerDown" },
       { x: 400, y: 300, texture: "ConveyerDown" },
       { x: 300, y: 400, texture: "ConveyerLeft" },
-      { x: 200, y: 400, texture: "GoalBucket" },
+      { x: 200, y: 400, texture: "BlueBucket" },
       { x: 500, y: 400, texture: "ConveyerRight" },
-      { x: 600, y: 400, texture: "GoalBucket" },
-      { x: 400, y: 500, texture: "GoalBucket" },
+      { x: 600, y: 400, texture: "RedBucket" },
+      { x: 400, y: 500, texture: "GreenBucket" },
       { x: 400, y: 400, texture: "ConveyerAll" },
     ];
 
@@ -46,14 +58,14 @@ export default class Level1 extends LevelScene {
   setupLevelCandies() {
     const candies = [
       new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
-      new Candy(Colors.RED, Shapes.SQUARE, Patterns.PLAIN),
-      new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.PLAIN),
+      new Candy(Colors.RED, Shapes.CIRCLE, Patterns.PLAIN),
+      new Candy(Colors.GREEN, Shapes.CIRCLE, Patterns.PLAIN),
     ];
 
     const goalPositions = {
       "blue-circle": { x: 200, y: 400 }, // Left bin
-      "red-square": { x: 600, y: 400 }, // Right bin
-      "green-triangle": { x: 400, y: 500 }, // Bottom bin
+      "red-circle": { x: 600, y: 400 }, // Right bin
+      "green-circle": { x: 400, y: 500 }, // Bottom bin
     };
 
     this.setupCandyQueue(candies, goalPositions);

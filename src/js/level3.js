@@ -12,6 +12,36 @@ export default class Level3 extends LevelScene {
     this.graphics.setDepth(2);
   }
 
+  preload() {
+    super.preload();
+    this.load.image("Connector", "assets/conveyer_photos/Connector.png");
+    this.load.image("ConveyerDown", "assets/conveyer_photos/ConveyerDown.png");
+    this.load.image("ConveyerAll", "assets/conveyer_photos/ConnectorAll.png");
+    this.load.image("ConveyerLeft", "assets/conveyer_photos/ConveyerLeft.png");
+    this.load.image("ConveyerRight", "assets/conveyer_photos/ConveyerRight.png");
+    this.load.image("BlueBucket", "assets/conveyer_photos/BlueBucket.png")
+    this.load.image("RedBucket", "assets/conveyer_photos/RedBucket.png")
+    this.load.image("GreenBucket", "assets/conveyer_photos/GreenBucket.png")
+  }
+
+  addConveyorArtwork() {
+    const tiles = [
+      { x: 400, y: 100, texture: "ConveyerDown" },
+      { x: 400, y: 200, texture: "ConveyerDown" },
+      { x: 400, y: 300, texture: "ConveyerDown" },
+      { x: 300, y: 400, texture: "ConveyerLeft" },
+      { x: 200, y: 400, texture: "BlueBucket" },
+      { x: 500, y: 400, texture: "ConveyerRight" },
+      { x: 600, y: 400, texture: "RedBucket" },
+      { x: 400, y: 500, texture: "GreenBucket" },
+      { x: 400, y: 400, texture: "ConveyerAll" },
+    ];
+
+    tiles.forEach(({ x, y, texture }) => {
+      this.add.image(x, y, texture).setDisplaySize(100, 100).setDepth(1);
+    });
+  }
+
   createLinesForConveyerBelt() {
     this.pathManager.addLine("center", { x: 400, y: 100 }, { x: 400, y: 400 });
     this.pathManager.addLineFrom("center", "left", { x: 200, y: 400 });
@@ -27,10 +57,10 @@ export default class Level3 extends LevelScene {
       { x: 400, y: 200, texture: "ConveyerDown" },
       { x: 400, y: 300, texture: "ConveyerDown" },
       { x: 300, y: 400, texture: "ConveyerLeft" },
-      { x: 200, y: 400, texture: "GoalBucket" },
+      { x: 200, y: 400, texture: "BlueBucket" },
       { x: 500, y: 400, texture: "ConveyerRight" },
-      { x: 600, y: 400, texture: "GoalBucket" },
-      { x: 400, y: 500, texture: "GoalBucket" },
+      { x: 600, y: 400, texture: "RedBucket" },
+      { x: 400, y: 500, texture: "GreenBucket" },
       { x: 400, y: 400, texture: "ConveyerAll" },
     ];
 
