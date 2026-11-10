@@ -191,11 +191,16 @@ export default class AnimationExecutor {
 
   drawFollower(graphics) {
     const currentCandy = this.pathManager.getCurrentCandy();
-    const textureKey = currentCandy?.imageKey;
+    if (!currentCandy) {
+      this.followerImage?.setVisible(false);
+      return;
+    }
+
+    const textureKey = currentCandy.imageKey;
 
     let color = 0xff0000; // Default red
-    if (currentCandy?.color === "blue") color = 0x0000ff;
-    else if (currentCandy?.color === "green") color = 0x00ff00;
+    if (currentCandy.color === "blue") color = 0x0000ff;
+    else if (currentCandy.color === "green") color = 0x00ff00;
 
     if (textureKey && this.scene.textures.exists(textureKey)) {
       if (!this.followerImage) {

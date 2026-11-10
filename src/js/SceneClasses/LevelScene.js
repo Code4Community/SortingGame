@@ -22,6 +22,9 @@ export default class LevelScene extends Phaser.Scene {
   currentLevel;
   initialProgram;
   showPathLines;
+  candyBank;
+  candyBankCandies = [];
+  candyBankNextIndex = 0;
 
   preload() {
     // this.load.image("background", "assets/factorybackground.png");
@@ -109,6 +112,9 @@ export default class LevelScene extends Phaser.Scene {
   }
 
   setupCandyQueue(candies, goalPositions) {
+    this.candyBankCandies = [...candies];
+    this.candyBankNextIndex = 0;
+    this.refreshCandyBank();
     this.pathManager.setCallbacks(
       (candy) => this.onCandySuccess(candy),
       (candy, position) => this.onCandyFailed(candy, position),
@@ -116,8 +122,102 @@ export default class LevelScene extends Phaser.Scene {
     this.pathManager.setupCandyQueueAndGoalPositions(candies, goalPositions);
   }
 
+  createCandyBank() {
+    this.candyBank = this.add.container(620, 12).setDepth(10);
+    this.refreshCandyBank();
+  }
+
+  getCandyBankLayout() {
+    const columns = 3;
+    const slotWidth = 42;
+    const slotHeight = 40;
+    const horizontalGap = 8;
+    const rowGap = 4;
+    const rows = Math.ceil(this.candyBankCandies.length / columns);
+    const width = 168;
+    const gridTop = 52;
+    const height = gridTop + rows * (slotHeight + rowGap) + 8;
+
+    return {
+      columns,
+      slotWidth,
+      slotHeight,
+      horizontalGap,
+      rowGap,
+      width,
+      gridTop,
+      height,
+    };
+  }
+
+  createCandyBankBackground(width, height) {
+    const background = this.add.graphics();
+    background.fillStyle(0x16202a, 0.92);
+    background.fillRoundedRect(0, 0, width, height, 10);
+    background.lineStyle(2, 0xffffff, 0.8);
+    background.strokeRoundedRect(0, 0, width, height, 10);
+    return background;
+  }
+
+  createCandyBankLabel(text, x, y, color = "#ffffff", fontSize = "13px") {
+    return this.add.text(x, y, text, {
+      fontFamily: "Arial",
+      fontSize,
+      fontStyle: "bold",
+      color,
+    });
+  }
+
+  getNextCandyLabel() {
+    const nextCandy = this.candyBankCandies[this.candyBankNextIndex];
+    return nextCandy ? `NEXT: ${nextCandy.color} ${nextCandy.shape}` : "NEXT: All sorted!";
+  }
+
+  createCandyBankSlot(candy, index, layout) {
+    const { columns, slotWidth, slotHeight, horizontalGap, gridTop, rowGap } = layout;
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const x = 8 + column * (slotWidth + horizontalGap);
+    const y = gridTop + row * (slotHeight + rowGap);
+    const isNext = index === this.candyBankNextIndex;
+    const isSorted = index < this.candyBankNextIndex;
+
+    const tile = this.add.graphics();
+    tile.fillStyle(isNext ? 0x735b16 : 0x283642, 1);
+    tile.fillRoundedRect(x, y, slotWidth, slotHeight, 6);
+    tile.lineStyle(isNext ? 2 : 1, isNext ? 0xffd54f : 0x607080, 1);
+    tile.strokeRoundedRect(x, y, slotWidth, slotHeight, 6);
+    this.candyBank.add(tile);
+
+    this.candyBank.add(
+      this.add
+        .image(x + slotWidth / 2, y + slotHeight / 2, candy.imageKey)
+        .setDisplaySize(30, 30)
+        .setAlpha(isSorted ? 0.35 : 1),
+    );
+  }
+
+  refreshCandyBank() {
+    if (!this.candyBank) return;
+
+    this.candyBank.removeAll(true);
+
+    const layout = this.getCandyBankLayout();
+    this.candyBank.add(this.createCandyBankBackground(layout.width, layout.height));
+    this.candyBank.add(this.createCandyBankLabel("CANDY BANK", 10, 7));
+    this.candyBank.add(
+      this.createCandyBankLabel(this.getNextCandyLabel(), 10, 27, "#ffe082", "11px"),
+    );
+
+    this.candyBankCandies.forEach((candy, index) => {
+      this.createCandyBankSlot(candy, index, layout);
+    });
+  }
+
   onCandySuccess(candy) {
     LevelHelper.onCandySuccess(this, candy);
+    this.candyBankNextIndex++;
+    this.refreshCandyBank();
   }
 
   onCandyFailed(candy, position) {
@@ -147,7 +247,8 @@ export default class LevelScene extends Phaser.Scene {
       this.queueManager,
     );
     this.queueManager.levelHelper = this.levelHelper;
-    
+
+    this.createCandyBank();
     this.createLinesForConveyerBelt();
     this.createIncrementalCommands();
     this.setupLevelCandies();
