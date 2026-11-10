@@ -1,6 +1,7 @@
 import Level1 from './level1.js';
 import Level2 from './level2.js';
 import Level3 from './level3.js';
+import Level4 from './level4.js';
 
 //Here, we import the level files. 
 //Later, we'll want to abstract this process into a function or switch case to call specific levels.
@@ -23,7 +24,7 @@ const config = {
     dom: {
         createContainer: true,
       },
-    scene: [Level1, Level2, Level3]
+    scene: [Level1, Level2, Level3, Level4]
 };
 
 //Setting up the theme for the text editor
@@ -58,6 +59,7 @@ levelSelect.addEventListener('change', (event) => {
           console.log('Level1');
           game.scene.stop('Level2');
           game.scene.stop('Level3');
+          game.scene.stop('Level4');
           game.scene.start(scene);
           break;
       case '2':
@@ -65,6 +67,7 @@ levelSelect.addEventListener('change', (event) => {
           console.log('Level2');
           game.scene.stop('Level1');
           game.scene.stop('Level3');
+          game.scene.stop('Level4');
           game.scene.start(scene);
           break;
       // Add more cases for additional levels later when added
@@ -73,12 +76,22 @@ levelSelect.addEventListener('change', (event) => {
           console.log('Level3');
           game.scene.stop('Level1');
           game.scene.stop('Level2');
+          game.scene.stop('Level4');
+          game.scene.start(scene);
+          break;
+      case '4':
+          scene = 'Level4';
+          console.log('Level4');
+          game.scene.stop('Level1');
+          game.scene.stop('Level2');
+          game.scene.stop('Level3');
           game.scene.start(scene);
           break;
       default:
           scene = 'Level1';
           game.scene.stop('Level2');
           game.scene.stop('Level3');
+          game.scene.stop('Level4');
           game.scene.start(scene);
           break;
   }
