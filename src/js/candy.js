@@ -9,6 +9,23 @@ export default class Candy {
   get type() {
     return `${this.color}-${this.shape}`;
   }
+
+  get imageKey() {
+    const shape = `${this.shape[0].toUpperCase()}${this.shape.slice(1)}`;
+
+    if (this.pattern === Patterns.PLAIN) {
+      return `${this.color}${shape}`;
+    }
+
+    const pattern =
+      this.color === Colors.RED &&
+      this.shape === Shapes.CIRCLE &&
+      this.pattern === Patterns.STRIPED
+        ? "Stripes"
+        : `${this.pattern[0].toUpperCase()}${this.pattern.slice(1)}`;
+
+    return `${this.color}${shape}${pattern}`;
+  }
 }
 
 export const Colors = Object.freeze({

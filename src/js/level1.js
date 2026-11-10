@@ -6,7 +6,14 @@ export default class Level1 extends LevelScene {
     super(
       "Level1",
       "moveDown\nmoveLeft\nmoveLeft\ndumpCandy\nmoveDown\nmoveRight\nmoveRight\ndumpCandy\nmoveDown\nmoveDown\ndumpCandy",
+      false,
     );
+  }
+
+  create() {
+    super.create();
+    this.addConveyorArtwork();
+    this.graphics.setDepth(2);
   }
 
   createLinesForConveyerBelt() {
@@ -16,6 +23,24 @@ export default class Level1 extends LevelScene {
     this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
     this.pathManager.addLineFrom("center", "right", { x: 600, y: 400 });
     this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
+  }
+
+  addConveyorArtwork() {
+    const tiles = [
+      { x: 400, y: 100, texture: "ConveyerDown" },
+      { x: 400, y: 200, texture: "ConveyerDown" },
+      { x: 400, y: 300, texture: "ConveyerDown" },
+      { x: 300, y: 400, texture: "ConveyerLeft" },
+      { x: 200, y: 400, texture: "GoalBucket" },
+      { x: 500, y: 400, texture: "ConveyerRight" },
+      { x: 600, y: 400, texture: "GoalBucket" },
+      { x: 400, y: 500, texture: "GoalBucket" },
+      { x: 400, y: 400, texture: "ConveyerAll" },
+    ];
+
+    tiles.forEach(({ x, y, texture }) => {
+      this.add.image(x, y, texture).setDisplaySize(100, 100).setDepth(1);
+    });
   }
 
   setupLevelCandies() {
