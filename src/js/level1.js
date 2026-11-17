@@ -17,9 +17,9 @@ export default class Level1 extends LevelScene {
     this.load.image("ConveyerAll", "assets/conveyer_photos/ConnectorAll.png");
     this.load.image("ConveyerLeft", "assets/conveyer_photos/ConveyerLeft.png");
     this.load.image("ConveyerRight", "assets/conveyer_photos/ConveyerRight.png");
-    this.load.image("BlueBucket", "assets/conveyer_photos/BlueBucket.png")
-    this.load.image("RedBucket", "assets/conveyer_photos/RedBucket.png")
-    this.load.image("GreenBucket", "assets/conveyer_photos/GreenBucket.png")
+    this.load.image("BlueCircle", "assets/conveyer_photos/BlueCircle.png")
+    this.load.image("RedCircle", "assets/conveyer_photos/RedCircle.png")
+    this.load.image("GreenCircle", "assets/conveyer_photos/GreenCircle.png")
   }
 
   create() {
@@ -43,10 +43,10 @@ export default class Level1 extends LevelScene {
       { x: 400, y: 200, texture: "ConveyerDown" },
       { x: 400, y: 300, texture: "ConveyerDown" },
       { x: 300, y: 400, texture: "ConveyerLeft" },
-      { x: 200, y: 400, texture: "BlueBucket" },
+      { x: 200, y: 400, texture: "BlueCircle" },
       { x: 500, y: 400, texture: "ConveyerRight" },
-      { x: 600, y: 400, texture: "RedBucket" },
-      { x: 400, y: 500, texture: "GreenBucket" },
+      { x: 600, y: 400, texture: "RedCircle" },
+      { x: 400, y: 500, texture: "GreenCircle" },
       { x: 400, y: 400, texture: "ConveyerAll" },
     ];
 

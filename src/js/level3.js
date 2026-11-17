@@ -19,9 +19,9 @@ export default class Level3 extends LevelScene {
     this.load.image("ConveyerAll", "assets/conveyer_photos/ConnectorAll.png");
     this.load.image("ConveyerLeft", "assets/conveyer_photos/ConveyerLeft.png");
     this.load.image("ConveyerRight", "assets/conveyer_photos/ConveyerRight.png");
-    this.load.image("BlueBucket", "assets/conveyer_photos/BlueBucket.png")
-    this.load.image("RedBucket", "assets/conveyer_photos/RedBucket.png")
-    this.load.image("GreenBucket", "assets/conveyer_photos/GreenBucket.png")
+    this.load.image("BlueCircle", "assets/conveyer_photos/BlueCircle.png")
+    this.load.image("RedCircle", "assets/conveyer_photos/RedCircle.png")
+    this.load.image("GreenCircle", "assets/conveyer_photos/GreenCircle.png")
   }
 
   addConveyorArtwork() {
@@ -30,10 +30,10 @@ export default class Level3 extends LevelScene {
       { x: 400, y: 200, texture: "ConveyerDown" },
       { x: 400, y: 300, texture: "ConveyerDown" },
       { x: 300, y: 400, texture: "ConveyerLeft" },
-      { x: 200, y: 400, texture: "BlueBucket" },
+      { x: 200, y: 400, texture: "BlueCircle" },
       { x: 500, y: 400, texture: "ConveyerRight" },
-      { x: 600, y: 400, texture: "RedBucket" },
-      { x: 400, y: 500, texture: "GreenBucket" },
+      { x: 600, y: 400, texture: "RedCircle" },
+      { x: 400, y: 500, texture: "GreenCircle" },
       { x: 400, y: 400, texture: "ConveyerAll" },
     ];
 
@@ -51,29 +51,11 @@ export default class Level3 extends LevelScene {
     this.pathManager.addLineFrom("center", "down", { x: 400, y: 500 });
   }
 
-  addConveyorArtwork() {
-    const tiles = [
-      { x: 400, y: 100, texture: "ConveyerDown" },
-      { x: 400, y: 200, texture: "ConveyerDown" },
-      { x: 400, y: 300, texture: "ConveyerDown" },
-      { x: 300, y: 400, texture: "ConveyerLeft" },
-      { x: 200, y: 400, texture: "BlueBucket" },
-      { x: 500, y: 400, texture: "ConveyerRight" },
-      { x: 600, y: 400, texture: "RedBucket" },
-      { x: 400, y: 500, texture: "GreenBucket" },
-      { x: 400, y: 400, texture: "ConveyerAll" },
-    ];
-
-    tiles.forEach(({ x, y, texture }) => {
-      this.add.image(x, y, texture).setDisplaySize(100, 100).setDepth(1);
-    });
-  }
-
   setupLevelCandies() {
     let candyOptions = [
         new Candy(Colors.BLUE, Shapes.CIRCLE, Patterns.PLAIN),
-        new Candy(Colors.RED, Shapes.SQUARE, Patterns.PLAIN),
-        new Candy(Colors.GREEN, Shapes.TRIANGLE, Patterns.PLAIN),
+        new Candy(Colors.RED, Shapes.CIRCLE, Patterns.PLAIN),
+        new Candy(Colors.GREEN, Shapes.CIRCLE, Patterns.PLAIN),
     ]
 
     const goalPositions = {
