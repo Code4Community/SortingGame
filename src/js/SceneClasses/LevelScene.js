@@ -27,7 +27,7 @@ export default class LevelScene extends Phaser.Scene {
   candyBankNextIndex = 0;
 
   preload() {
-    // this.load.image("background", "assets/factorybackground.png");
+    this.load.image("background", "assets/background.jpg");
     console.log(`[${this.currentLevel}] Preloading background image.`);
     this.load.image("Connector", "assets/conveyer_photos/Connector.png");
     this.load.image("ConveyerDown", "assets/conveyer_photos/ConveyerDown.png");
